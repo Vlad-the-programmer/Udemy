@@ -59,7 +59,7 @@ class ToDo(db.Model):
         self.canvas = canvas
 
     def __repr__(self):
-        return f'{self.id} {self.task}'
+        return f'{self.id} {self.task} {self.canvas}'
 
 
 class User(db.Model):
@@ -91,16 +91,16 @@ class User(db.Model):
         return str(self.id)
 
 
-@login_required
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def home():
     form = ToDoForm()
     if request.method == 'POST':
 
         if form.validate_on_submit():
             canvas_data = form['canvas'].data
-            print(canvas_data)
-            print(ToDo.query.all())
+            # print(canvas_data)
+            # print(db.session.query(ToDo).all())
             task = ToDo(canvas_data)
 
             db.session.add(task)
@@ -113,18 +113,18 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
-    print(User.query.all())
+    # print(db.session.query(User).all())
     user = db.session.query(User).filter(User.email == login_form['email'].data).first()
     if request.method == 'POST':
         if login_form.validate_on_submit():
             if user and login_form.password.data == user.password:
                 login_user(user)
-                redirect(url_for('home'))
+                return redirect(url_for('home'))
             else:
                 flash('You should register prior to logging in!', category='error')
                 redirect(url_for('sign_up'))
 
-    return render_template('login.html', form=login_form, user=current_user, all_messages=get_flashed_messages)
+    return render_template('login.html', form=login_form, user=current_user)
 
 
 @app.route('/sign-up', methods=['POST', 'GET'])
