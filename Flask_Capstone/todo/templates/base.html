@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 {% block head %}
 <head>
     <meta charset="UTF-8">
@@ -27,10 +28,10 @@
 
       </ul>
 
-      <form class="d-flex" {% block url %} action="{{ url_for('login') }}" {% endblock %} method="POST">
+      <form class="" {% block url %} action="{{ url_for('login') }}" {% endblock %} method="POST">
         <button class="btn btn-outline-success" type="submit">{% block status %}Login{% endblock%}</button>
       </form>
-
+            {% block sign_up %} {% endblock %}
     </div>
   </div>
 </nav>
@@ -40,4 +41,6 @@
 
 
 {% endblock %}
+
+{% block article %} {% endblock %}
 </html>

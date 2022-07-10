@@ -54,12 +54,12 @@ class ToDo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(50))
 
-    def __int__(self, canvas):
-        # super(ToDo, self).__init__()
-        self.canvas = canvas
+    def __int__(self, task):
+        # super().__init__(canvas)
+        self.task = task
 
     def __repr__(self):
-        return f'{self.id} {self.task} {self.canvas}'
+        return f'{self.id} {self.task} '
 
 
 class User(db.Model):
@@ -95,11 +95,12 @@ class User(db.Model):
 @login_required
 def home():
     form = ToDoForm()
+    tasks = db.session.query(ToDo).all()
     if request.method == 'POST':
-
+        print(tasks)
         if form.validate_on_submit():
-            canvas_data = form['canvas'].data
-            # print(canvas_data)
+            canvas_data = request.form.get('canvas')
+            print(canvas_data)
             # print(db.session.query(ToDo).all())
             task = ToDo(canvas_data)
 
@@ -107,13 +108,12 @@ def home():
             db.session.commit()
             return redirect('/')
 
-    return render_template('home.html', form=form, user=current_user)
+    return render_template('home.html', form=form, user=current_user, tasks=tasks)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
-    # print(db.session.query(User).all())
     user = db.session.query(User).filter(User.email == login_form['email'].data).first()
     if request.method == 'POST':
         if login_form.validate_on_submit():

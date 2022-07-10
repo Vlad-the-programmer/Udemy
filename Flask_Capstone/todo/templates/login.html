@@ -2,7 +2,11 @@
 
 {% block title %} Login {% endblock %}
 
-
+{% block sign_up %}
+         <form class="d-flex" action="{{ url_for('sign_up') }}" method="POST">
+            <button class="btn btn-outline-success" type="submit">Sign up</button>
+      </form>
+{% endblock %}
 
 {% block content %}
 
@@ -30,7 +34,7 @@
             {% endfor %}
 
   </div>
-  <div class="btn btn-lg-success">
+  <div class="btn btn-lg-success ">
       {{ form.login }}
 </div>
 </form>

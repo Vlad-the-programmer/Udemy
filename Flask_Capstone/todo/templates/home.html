@@ -18,3 +18,16 @@
 </form>
 </div>
 {% endblock %}
+
+{% block article %}
+    {% for task in tasks %}
+        <div class="card" style="width: 18rem;">
+             <img class="card-img-top" src="./img/task_img.jpg" alt="Task image">
+  <div class="card-body">
+        <h5 class="card-title">{{ task.task }}</h5>
+<!--    <p class="card-text"></p>-->
+<!--    <a href="#" class="btn btn-primary">Go somewhere</a>-->
+  </div>
+</div>
+    {% endfor %}
+{% endblock %}
