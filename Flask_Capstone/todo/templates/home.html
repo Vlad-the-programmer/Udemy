@@ -7,7 +7,7 @@
 
 
 <div style="text-align: center;">
- <form action="{{ url_for('home') }}" method="POST">
+ <form  method="POST">
   <div class="mb-3 center-block col-lg-13 " >
        {{ form.hidden_tag() }}
     <label  class="form-label">Create your to-do list below</label><br>
@@ -22,11 +22,13 @@
 {% block article %}
     {% for task in tasks %}
         <div class="card" style="width: 18rem;">
-             <img class="card-img-top" src="./img/task_img.jpg" alt="Task image">
+             <img class="card-img-top" src="{{url_for('static', filename='./img/task_img.jpg')}}" alt="Task image">
   <div class="card-body">
         <h5 class="card-title">{{ task.task }}</h5>
-<!--    <p class="card-text"></p>-->
-<!--    <a href="#" class="btn btn-primary">Go somewhere</a>-->
+      <a href="{{ url_for('delete', pk=task.id)}}" class="btn btn-primary" >Delete</a>
+      <a href="{{ url_for('update', pk=task.id)}}" class="btn btn-primary" >Update</a>
+
+
   </div>
 </div>
     {% endfor %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% if user.is_authenticated %}
+    {% block status %} Logout {% endblock %}
+    {% block url %}action="{{ url_for('logout') }}"{% endblock %}
+    {% endif %}
+{% block content %}
+
+
+<div style="text-align: center;">
+ <form  method="POST">
+  <div class="mb-3 center-block col-lg-13 " >
+       {{ form.hidden_tag() }}
+    <label  class="form-label">Update your to-do list below</label><br>
+
+    {{ form.canvas }}
+  </div>
+  <button type="submit" class="btn btn-primary">Update</button>
+</form>
+</div>
+{% endblock %}

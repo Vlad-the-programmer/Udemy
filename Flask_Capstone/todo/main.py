@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length
 from flask_wtf import FlaskForm
 from wtforms.widgets import TextArea
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'vlad1234'
@@ -46,7 +46,6 @@ class SignUpForm(FlaskForm):
 
 class ToDoForm(FlaskForm):
     canvas = TextAreaField(label='Enter a task...', validators=[DataRequired()], widget=TextArea())
-    submit = SubmitField(label='Submit')
 
 
 class ToDo(db.Model):
@@ -54,12 +53,12 @@ class ToDo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(50))
 
-    def __int__(self, task):
-        # super().__init__(canvas)
-        self.task = task
+    def __int__(self, task_data):
+        # super().__init__()
+        self.task = task_data
 
     def __repr__(self):
-        return f'{self.id} {self.task} '
+        return f'{self.id} {self.task}'
 
 
 class User(db.Model):
@@ -95,20 +94,50 @@ class User(db.Model):
 @login_required
 def home():
     form = ToDoForm()
-    tasks = db.session.query(ToDo).all()
     if request.method == 'POST':
-        print(tasks)
-        if form.validate_on_submit():
-            canvas_data = request.form.get('canvas')
-            print(canvas_data)
-            # print(db.session.query(ToDo).all())
-            task = ToDo(canvas_data)
 
+        if form.validate_on_submit():
+            canvas_data = request.form['canvas']
+            task = ToDo(task=canvas_data)
             db.session.add(task)
             db.session.commit()
             return redirect('/')
+    tasks = ToDo.query.all()
 
     return render_template('home.html', form=form, user=current_user, tasks=tasks)
+
+
+@app.route('/delete/<int:pk>', methods=['GET', 'POST'])
+def delete(pk):
+    form = ToDoForm()
+    tasks = ToDo.query.all()
+    if request.method == 'GET':
+        task = ToDo.query.get(pk)
+        db.session.delete(task)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('home.html', user=current_user, form=form, tasks=tasks)
+
+
+@app.route('/update/<int:pk>', methods=['GET', 'POST'])
+def update(pk):
+    task = ToDo.query.get(pk)
+    print(task)
+    form = ToDoForm()
+    if request.method == 'POST':
+        if task:
+            db.session.delete(task)
+            db.session.commit()
+
+            task = request.form['canvas']
+
+            new_task = ToDo(task=task)
+            db.session.add(new_task)
+            db.session.commit()
+
+            return redirect(url_for('home'))
+        return f"Employee with id = {pk} Does nit exist"
+    return render_template('update.html', user=current_user, form=form, task=task)
 
 
 @app.route('/login', methods=['GET', 'POST'])
