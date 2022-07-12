@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<h2 style="text-align: center"> London </h2>
+
+
+  <div class="container" style="font-family: 'Dosis', sans-serif;; font-size: larger">
+
+        The best work and study-friendly cafes, restaurants, and hotel lobbies in London.
+        Find venues with free and reliable Wi-Fi hotspots, ample power sockets,
+        and comfy seating areas.
+    </div>
+<hr>
+
+<div class="position-relative col-lg-3 col-md-4 d-md-block">
+   <div class="col-lg-6">
+        <div class="col-3 col-xl-3 col-lg-4 py-1">
+            <button class="btn btn-filter " data-criteria="wifi" data-toggle="button">
+                <i class="fa fa-fw fa-wifi"></i>
+                <br>
+                    <span title="Name">
+                        {{ form.name.label }} {{ form.name }}<br>
+                    </span>
+            </button>
+        </div>
+
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button>
+            <br>
+                <span title="Stable Wi-Fi">
+                    {{ form.has_wifi.label }} {{ form.has_wifi }}
+                </span>
+        </button>
+    </div>
+       <br>
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button>
+            <br>
+                <span title="Power sockets">
+                    {{ form.has_sockets.label }} {{ form.has_sockets }}
+                </span>
+        </button>
+    </div>
+
+       <br>
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button>
+            <br>
+            <span title="Toilet">
+                {{ form.has_toilet.label }} {{ form.has_toilet }}
+            </span>
+        </button>
+    </div>
+       <br>
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button>
+
+            <br>
+                <span title="Take calls">
+                    {{ form.has_take_calls.label }}  {{ form.has_take_calls }}
+                </span>
+        </button>
+    </div>
+       <br>
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button class="btn btn-filter" data-criteria="quiet" data-toggle="button">
+            <i class="fa fa-fw fa-volume-down"></i>
+            <br>
+                <span title="Location">
+                    {{ form.location.label }} {{ form.location }}
+                </span>
+        </button>
+    </div>
+       <br>
+
+    <div class="col-3 col-xl-3 col-lg-4 py-1">
+        <button class="btn btn-filter" data-criteria="skype" data-toggle="button">
+            <i class="fa fa-fw fa-headset"></i>
+            <br>
+                <span title="Seats">
+                    {{ form.seats.label }} {{ form.seats }}
+                </span>
+        </button>
+    </div>
+
+       <br>
+
+       <div class="col-3 col-xl-3 col-lg-4 py-1">
+            <button class="btn btn-filter" data-criteria="skype" data-toggle="button">
+                <i class="fa fa-fw fa-headset"></i>
+                <br>
+                    <span title="Coffe price">
+                        {{ form.coffe_price.label }} {{ form.coffe_price }}
+                    </span>
+            </button>
+    </div>
+<br>
+   </div>
+    <button class="btn btn-success">Submit</button>
+</div>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
