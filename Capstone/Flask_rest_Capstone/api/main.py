@@ -1,11 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, csrf
 from wtforms import StringField, IntegerField, FloatField, BooleanField, RadioField, URLField, SubmitField
 from wtforms.validators import DataRequired, URL, Length
-from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__, template_folder='templates')
@@ -17,8 +16,6 @@ Bootstrap(app)
 
 # login_manager = LoginManager()
 # login_manager.init_app(app)
-
-csrf = CSRFProtect(app)
 
 
 @app.before_first_request
@@ -38,6 +35,9 @@ class Cafe(db.Model):
     can_take_calls = db.Column(db.Boolean, nullable=True)
     seats = db.Column(db.Integer, nullable=True)
     coffe_price = db.Column(db.Float, nullable=True)
+
+    def __repr__(self):
+        return f'{self.name} {self.location} {self.seats} {self.coffe_price}'
 
 
 class CafeSearchForm(FlaskForm):
@@ -70,14 +70,18 @@ class CafeCreateForm(FlaskForm):
 def home():
     cafes = Cafe.query.all()
     search_form = CafeSearchForm()
+
     if request.method == 'POST':
+        csrf.generate_csrf()
+        if search_form.validate_on_submit():
+            searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'].data).all()
+            search_form = CafeSearchForm()
+            return render_template('index.html', searched_cafes=searched_cafes, form=search_form, cafes=cafes)
+        return redirect(url_for('home'))
+    return render_template('index.html', form=search_form, cafes=cafes)
 
-        # cafe_data = request.search_form
-        searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'], location=search_form['location'])
-
-        return redirect(url_for('home')), searched_cafes
-    return render_template('index.html', cafes=cafes, form=search_form)
 
 
 if '__main__' == __name__:
     app.run(debug=True, port=5000, use_reloader=True)
+
