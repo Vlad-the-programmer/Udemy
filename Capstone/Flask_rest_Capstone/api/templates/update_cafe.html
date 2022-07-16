@@ -1,20 +1,6 @@
 {% extends 'base.html' %}
 
-{% block links %}
-
-<form action="{{ url_for('search_cafe') }}" class="form-inline my-2 my-lg-0" method="post">
-
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search a cafe</button>
-    </form>
-{% endblock %}
-
-{% block head%}
-<h2 style="text-align: center"> Create a cafe </h2>
-
-<hr>
-{% endblock %}
 {% block messages %}
-
 <!--Messages-->
 {% with messages = get_flashed_messages(category_filter=["error"]) %}
   {% if messages %}
@@ -29,8 +15,9 @@
   {% endif %}
 {% endwith %}
 <!---->
-
 {% endblock %}
+
+
 <!--Create a cafe-->
 {% block content %}
 
@@ -151,7 +138,7 @@
     <br>
         </div>
 
-        <button class="btn btn-success">Submit</button>
+        <button class="btn btn-success">Update</button>
     </div>
 </form>
 <!--Displaying all the cafes in the database-->
@@ -180,7 +167,7 @@
 
                 </ul>
               </p>
-            <form action="" class="form-inline my-2 my-lg-0" method="get">
+             <form action="" class="form-inline my-2 my-lg-0" method="get">
 
                 <a href="{{ url_for('update_cafe', pk=cafe.id) }}" class="btn btn-primary" >Update</a>
                 <a href="{{ url_for('delete_cafe', pk=cafe.id) }}" class="btn btn-primary" >Delete</a>

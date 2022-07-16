@@ -6,7 +6,7 @@ from flask_login import LoginManager
 from flask_wtf import FlaskForm, csrf
 from werkzeug import Response
 from wtforms import StringField, IntegerField, FloatField, BooleanField, URLField, SubmitField
-from wtforms.validators import DataRequired, URL, Length
+from wtforms.validators import DataRequired, URL, Length, Optional
 from flask_restful import Api, Resource, marshal_with, fields, reqparse
 from flask_marshmallow import Marshmallow
 
@@ -31,6 +31,7 @@ def create_db():
 
 
 class Cafe(db.Model):
+    __tablename__ = "cafe"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     map_url = db.Column(db.String(500), nullable=True)
@@ -45,6 +46,7 @@ class Cafe(db.Model):
 
     def __init__(self, name, location, seats, coffe_price, has_sockets, has_toilet, has_wifi, can_take_calls, map_url=None, img_url=None):
         self.name = name
+
         self.location = location
         self.seats = seats
         self.coffe_price = coffe_price
@@ -56,7 +58,8 @@ class Cafe(db.Model):
         self.map_url = map_url
 
     def __repr__(self):
-        return f'{self.name} {self.location} {self.seats} {self.coffe_price}'
+        return f"""{self.name} {self.location} {self.seats} {self.coffe_price}-
+                Wifi {self.has_wifi} - Sockets {self.has_sockets} - Toilet {self.has_toilet} - Calls {self.can_take_calls}\n"""
 
     def json(self):
         return {'id': self.id, 'name': self.name, 'img_url': self.img_url, 'location': self.location,
@@ -87,10 +90,10 @@ class CafeCreateForm(FlaskForm):
     map_url = URLField('A map url', [URL(), DataRequired()])
     img_url = URLField('An image url', [URL(), DataRequired()])
     location = StringField('Location', [DataRequired(), Length(min=4)])
-    has_sockets = BooleanField('Sockets?', default=False)
-    has_toilet = BooleanField('Toilet?', default=False)
-    has_wifi = BooleanField('Wifi?', default=False)
-    has_take_calls = BooleanField('Take calls', default=False)
+    has_sockets = BooleanField('Sockets?',  default=False)
+    has_toilet = BooleanField('Toilet?',  default=False)
+    has_wifi = BooleanField('Wifi?',  default=False)
+    has_take_calls = BooleanField('Take calls',  default=False)
     seats = IntegerField('Seats', [DataRequired()])
     coffe_price = FloatField('A coffe price', [DataRequired()])
     create_cafe = SubmitField('Create a cafe')
@@ -142,29 +145,28 @@ def home():
 def search_cafe():
     search_form = CafeSearchForm()
 
-    if request.method == 'POST':
-        csrf.generate_csrf()
-        if search_form.validate_on_submit():
-            searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'].data,
-                                                              location=search_form['location'].data,
-                                                              has_sockets=bool(search_form['has_sockets'].data),
-                                                              has_wifi=bool(search_form['has_wifi'].data),
-                                                              has_toilet=bool(search_form['has_toilet'].data),
-                                                              can_take_calls=bool(search_form['has_take_calls'].data),
-                                                              seats=search_form['seats'].data,
-                                                              coffe_price=search_form['coffe_price'].data
-            ).all()
-            if not search_form:
-                return flash('No cafe was found...', category='error')
-            return render_template('search_cafe.html', searched_cafes=searched_cafes, form=search_form)
+    csrf.generate_csrf()
+    if search_form.validate_on_submit():
+        # Does not filter by the boolean values
+        searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'].data,
+                                                          location=search_form['location'].data,
+                                                          # has_sockets=bool(search_form['has_sockets'].data),
+                                                          # has_wifi=bool(search_form['has_wifi'].data),
+                                                          # has_toilet=bool(search_form['has_toilet'].data),
+                                                          # can_take_calls=bool(search_form['has_take_calls'].data),
+                                                          seats=search_form['seats'].data,
+                                                          coffe_price=search_form['coffe_price'].data
+        ).all()
 
+        return render_template('search_cafe.html', searched_cafes=searched_cafes, form=search_form)
+    flash('No cafe was found...', category='error')
     return render_template('search_cafe.html', form=search_form)
 
 
-@app.route('/cafe/<int:pk>', methods=['POST', 'GET'])
-def get_cafe(pk):
-    cafe = Cafe.query.get(pk)
-    return cafe_schema.jsonify(cafe)
+# @app.route('/cafe/<int:pk>', methods=['POST', 'GET'])
+# def get_cafe(pk):
+#     cafe = Cafe.query.get(pk)
+#     return cafe_schema.jsonify(cafe)
 
 
 @app.route('/cafes', methods=['GET'])
@@ -177,12 +179,39 @@ def get_cafes():
 def add_cafe():
     form = CafeCreateForm()
     cafes = Cafe.query.all()
-    # request_data = request.form
+
+    csrf.generate_csrf()
+    request_data = request.form
+
+    if form.validate_on_submit():
+
+        cafe = Cafe(name=request_data.get('name'),
+                    location=request_data.get('location'),
+                    seats=request_data.get('seats'),
+                    coffe_price=request_data.get('coffe_price'),
+                    has_sockets=request_data.get('has_sockets', type=bool),
+                    has_wifi=request_data.get('has_wifi', type=bool),
+                    has_toilet=request_data.get('has_toilet', type=bool),
+                    can_take_calls=request_data.get('has_take_calls', type=bool))
+
+        if not cafe:
+            flash("Invalid input...", 'error')
+
+        db.session.add(cafe)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('add_cafe.html', form=form, cafes=cafes)
+
+
+@app.route('/update/<int:pk>', methods=['PUT', 'GET', 'POST'])
+def update_cafe(pk):
+    cafe = Cafe.query.filter_by(id=pk).first()
+    request_data = request.form
+    cafes = Cafe.query.all()
+    form = CafeCreateForm()
     if request.method == 'POST':
-        csrf.generate_csrf()
-        request_data = request.form
-        # print(request_data)
-        if form.validate_on_submit():
+        if cafe:
+            db.session.delete(cafe)
 
             cafe = Cafe(name=request_data.get('name'),
                         location=request_data.get('location'),
@@ -195,35 +224,28 @@ def add_cafe():
 
             db.session.add(cafe)
             db.session.commit()
-            return redirect(url_for('home'))
-    return render_template('add_cafe.html', form=form, cafes=cafes)
 
+            return redirect('/')
 
-@app.route('/update/<int:pk>', methods=['PUT', 'GET'])
-def update_cafe(pk):
-    request_data = request.get_json()
+        abort_if_cafe_doesnt_exist(pk)
+        flash(f'The cafe with the id {pk} does not exist...', 'error')
+    return render_template('update_cafe.html', form=form, cafes=cafes)
 
-    cafe = Cafe.query.filter_by(id=pk).first()
-    cafe.name = request_data['name']
-    cafe.location = request_data['location']
-    cafe.seats = request_data['seats']
-    cafe.coffe_price = request_data['coffe_price']
-    cafe.has_sockets = bool(request_data['has_sockets'])
-    cafe.has_wifi = bool(request_data['has_wifi'])
-    cafe.has_toilet = bool(request_data['has_toilet'])
-    cafe.can_take_calls = bool(request_data['can_take_calls'])
-
-    db.session.commit()
-    return cafe_schema.jsonify(cafe)
-
-
-@app.route('/cafe/<int:pk>/delete', methods=['DELETE', 'GET'])
+# Does not work
+@app.route('/cafe/<int:pk>/delete', methods=['POST', 'GET'])
 def delete_cafe(pk):
     '''Function to delete movie from our database'''
+    cafe = Cafe.query.filter_by(id=pk).first()
+    cafes = Cafe.query.all()
+    if request.method == 'POST':
+        if cafe:
+            db.session.delete(cafe)
+            db.session.commit()
+            return redirect('/')
+        abort_if_cafe_doesnt_exist(pk)
+        flash('The cafe does not exist...', 'error')
 
-    Cafe.query.filter_by(id=pk).delete()
-    db.session.commit()
-    return Response("Movie Deleted", status=200, mimetype='application/json')
+    return render_template('index.html', cafes=cafes)
 
 
 # class Cafes(Resource):
@@ -273,11 +295,6 @@ def delete_cafe(pk):
 #
 # api.add_resource(CafeItem, '/cafe/<int:pk>')
 # api.add_resource(Cafes, '/cafes')
-
-
-
-
-
 
 
 if '__main__' == __name__:

@@ -28,6 +28,7 @@
 
 {% endblock %}
 
+
 <!--Searched cafes-->
 {% block content %}
 
@@ -46,13 +47,16 @@
 
                   {% if cafe.has_wifi %}
                         <li>Has  wifi</li>
-                  {% elif cafe.has_toilet %}
+                    {% endif %}
+                  {% if cafe.has_toilet %}
                         <li>Has  toilet</li>
-                  {% elif cafe.has_sockets %}
+                    {% endif %}
+                  {% if cafe.has_sockets %}
                         <li>Has  sockets</li>
-                  {% elif cafe.has_take_calls %}
+                        {% endif %}
+                  {% if cafe.has_take_calls %}
                         <li>Can take calls</li>
-                  {% endif %}
+                    {% endif %}
                   <li>Location - {{ cafe.location }}</li>
                   <li>Seats - {{ cafe.seats }}</li>
 
@@ -60,7 +64,7 @@
 
                 </ul>
               </p>
-              <form action="{{ url_for('add_cafe') }}" class="form-inline my-2 my-lg-0" method="get">
+              <form action="" class="form-inline my-2 my-lg-0" method="post">
 
                 <a href="{{ url_for('update_cafe', pk=cafe.id) }}" class="btn btn-primary" >Update</a>
                 <a href="{{ url_for('delete_cafe', pk=cafe.id) }}" class="btn btn-primary" >Delete</a>

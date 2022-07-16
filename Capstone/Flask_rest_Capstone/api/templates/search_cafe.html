@@ -12,7 +12,9 @@
 <h2 style="text-align: center"> Search </h2>
 
 <hr>
+{% endblock %}
 
+{% block messages %}
 <!--Messages-->
 {% with messages = get_flashed_messages(category_filter=["error"]) %}
   {% if messages %}
@@ -27,6 +29,10 @@
   {% endif %}
 {% endwith %}
 <!---->
+{% endblock  messages %}
+
+
+{% block content %}
 
 <!--Search form-->
 <form class="form-control" method="post">{{ form.hidden_tag() }}
@@ -125,10 +131,8 @@
         <button class="btn btn-success">Search</button>
     </div>
 </form>
-{% endblock %}
 
 <!--Searched cafes-->
-{% block content %}
 <div class="container" >
     {% for cafe in searched_cafes %}
         <div class="card" style="width: 18rem;display: inline-block">
@@ -154,7 +158,7 @@
 
                 </ul>
               </p>
-             <form action="{{ url_for('add_cafe') }}" class="form-inline my-2 my-lg-0" method="get">
+             <form action="" class="form-inline my-2 my-lg-0" method="get">
 
                 <a href="{{ url_for('update_cafe', pk=cafe.id) }}" class="btn btn-primary" >Update</a>
                 <a href="{{ url_for('delete_cafe', pk=cafe.id) }}" class="btn btn-primary" >Delete</a>
