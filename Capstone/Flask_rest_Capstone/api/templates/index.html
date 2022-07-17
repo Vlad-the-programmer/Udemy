@@ -2,15 +2,22 @@
 
 
 {% block links %}
- <form action="{{ url_for('add_cafe') }}" class="form-inline my-2 my-lg-0" method="post">
+    {% if user.is_authenticated %}
+        <form action="{{ url_for('logout') }}" class="form-inline my-2 my-lg-0" method="post">
 
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Create a cafe</button>
-    </form>
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+        </form>
+    {% else %}
+         <form action="{{ url_for('sign_up') }}" class="form-inline my-2 my-lg-0" method="post">
 
-<form action="{{ url_for('search_cafe') }}" class="form-inline my-2 my-lg-0" method="post">
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Sign up</button>
+            </form>
 
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search a cafe</button>
-    </form>
+        <form action="{{ url_for('login') }}" class="form-inline my-2 my-lg-0" method="post">
+
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Log in</button>
+            </form>
+    {% endif %}
 {% endblock %}
 
 {% block head %}
@@ -64,7 +71,7 @@
 
                 </ul>
               </p>
-              <form action="" class="form-inline my-2 my-lg-0" method="post">
+              <form action="" class="form-inline my-2 my-lg-0" method="POST">
 
                 <a href="{{ url_for('update_cafe', pk=cafe.id) }}" class="btn btn-primary" >Update</a>
                 <a href="{{ url_for('delete_cafe', pk=cafe.id) }}" class="btn btn-primary" >Delete</a>

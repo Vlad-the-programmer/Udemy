@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+
+{% block links %}
+
+        <form action="{{ url_for('login') }}" class="form-inline my-2 my-lg-0" method="post">
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+        </form>
+
+{% endblock %}
+
+{% block head %}
+<h2 style="text-align: center"> Sign up </h2>
+
+<hr>
+{% endblock %}
+
+{% block messages %}
+<!--Messages-->
+{% with messages = get_flashed_messages(category_filter=["error"]) %}
+  {% if messages %}
+   <div class="alert-message block-message error">
+  <a class="close" href="#">×</a>
+  <ul>
+    {%- for msg in messages %}
+    <li>{{ msg }}</li>
+    {% endfor -%}
+  </ul>
+</div>
+  {% endif %}
+{% endwith %}
+<!---->
+{% endblock  messages %}
+
+
+{% block content %}
+
+<!--Search form-->
+<form class="form-control" method="post">{{ form.hidden_tag() }}
+    <div class="position-relative col-lg-3 col-md-4 d-md-block">
+
+       <div class="col-lg-6 nav flex-column">
+                <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
+                    <button class="btn btn-filter " data-criteria="wifi" data-toggle="button">
+                        <i class="fa fa-fw fa-wifi"></i>
+                        <br>
+                            <span title="Name">
+                                {{ form.username.label }} {{ form.username }}<br>
+                            </span>
+                    </button>
+                </div>
+
+
+            <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
+                <button>
+                    <br>
+                        <span title="Stable Wi-Fi">
+                            {{ form.email.label }} {{ form.email }}
+                        </span>
+                </button>
+            </div>
+               <br>
+
+            <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
+                <button>
+                    <br>
+                        <span title="Power sockets">
+                            {{ form.password.label }} {{ form.password }}
+                        </span>
+                </button>
+            </div>
+
+               <br>
+
+            </div>
+
+            <button class="btn btn-success">Sign up</button>
+        </div>
+</form>
+
+
+{% endblock %}

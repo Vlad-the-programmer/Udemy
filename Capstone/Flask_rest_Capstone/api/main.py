@@ -1,14 +1,17 @@
+import datetime
 
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort, flash, get_flashed_messages
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_wtf import FlaskForm, csrf
-from werkzeug import Response
-from wtforms import StringField, IntegerField, FloatField, BooleanField, URLField, SubmitField
-from wtforms.validators import DataRequired, URL, Length, Optional
-from flask_restful import Api, Resource, marshal_with, fields, reqparse
+# from werkzeug import Response
+from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms import StringField, IntegerField, FloatField, BooleanField, URLField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, URL, Length, Email, EqualTo
+# from flask_restful import Api, Resource, marshal_with, fields, reqparse
 from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
 
 
 app = Flask(__name__, template_folder='templates')
@@ -17,11 +20,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'vlad123'
 db = SQLAlchemy(app)
 Bootstrap(app)
+migrate = Migrate(app, db)
+# api = Api(app)
 
-api = Api(app)
-
-# login_manager = LoginManager()
-# login_manager.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 mm = Marshmallow(app)
 
@@ -32,7 +35,7 @@ def create_db():
 
 class Cafe(db.Model):
     __tablename__ = "cafe"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(250), nullable=False)
     map_url = db.Column(db.String(500), nullable=True)
     img_url = db.Column(db.String(500), nullable=True)
@@ -43,6 +46,7 @@ class Cafe(db.Model):
     can_take_calls = db.Column(db.Boolean, nullable=True)
     seats = db.Column(db.Integer, nullable=True)
     coffe_price = db.Column(db.Float, nullable=True)
+    # author = db.relationship('User', backref='cafe-author', cascade='all,delete')
 
     def __init__(self, name, location, seats, coffe_price, has_sockets, has_toilet, has_wifi, can_take_calls, map_url=None, img_url=None):
         self.name = name
@@ -66,6 +70,30 @@ class Cafe(db.Model):
                 'has_sockets': self.has_sockets, 'has_wifi': self.has_wifi, 'has_toilet': self.has_toilet,
                 'can_take_calls': self.can_take_calls, 'seats': self.seats, 'coffe_price': self.coffe_price
                 }
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    email = db.Column(db.String(50), nullable=False, unique=True)
+    active = db.Column(db.Boolean, nullable=False, default=True)
+    joined_at = db.Column(db.DateTime(), default=datetime.datetime.utcnow(), index=True)
+    password_hash = db.Column(db.String(50), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return '<User{}>'.format(self.username, self.cafes)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.objects(id=user_id).first()
 
 
 class CafeSchema(mm.Schema):
@@ -98,6 +126,19 @@ class CafeCreateForm(FlaskForm):
     coffe_price = FloatField('A coffe price', [DataRequired()])
     create_cafe = SubmitField('Create a cafe')
 
+
+class SignUpForm(FlaskForm):
+    username = StringField('Name', [DataRequired(), Length(min=4)])
+    email = StringField('Email', [Email(), DataRequired()])
+    password = PasswordField('Password', [DataRequired(), Length(min=6)])
+    password_confirm = PasswordField('Confirm your password', [DataRequired(), Length(min=6), EqualTo(password)])
+
+
+class LogInForm(FlaskForm):
+    email = StringField('Email', [Email(), DataRequired()])
+    password = PasswordField('Password', [DataRequired(), Length(min=6)])
+
+
 #
 # parser = reqparse.RequestParser()
 # parser.add_argument('name', type=str, help='A name of a cafe')
@@ -120,34 +161,68 @@ def abort_if_cafe_doesnt_exist(cafe_id):
         abort(404, f'Cafe {cafe_id} does not exist')
 
 
-data_format = {
-    'id': fields.Integer,
-    'name': fields.String,
-    'location': fields.String,
-    'coffe_price': fields.Float,
-}
+# data_format = {
+#     'id': fields.Integer,
+#     'name': fields.String,
+#     'location': fields.String,
+#     'coffe_price': fields.Float,
+# }
 
 
 @app.route('/', methods=['POST', 'GET'])
 def home():
     cafes = Cafe.query.all()
-    # if request.method == 'POST':
-    #     csrf.generate_csrf()
-    #     if search_form.validate_on_submit():
-    #         searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'].data).all()
-    #         search_form = CafeSearchForm()
-    #         return render_template('index.html', searched_cafes=searched_cafes, form=search_form, cafes=cafes)
-    #     return redirect(url_for('home'))
-    return render_template('index.html', cafes=cafes)
+    user = current_user
+    # if user and user.
+    return render_template('index.html', cafes=cafes, user=current_user)
+
+
+@app.route('/sign-up', methods=['POST', 'GET'])
+def sign_up():
+    sign_up_form = SignUpForm()
+
+    if request.method == 'POST':
+
+        if sign_up_form.validate_on_submit():
+            user = User(name=request.form['username'], email=request.form['email'],  # type: ignore
+                        password_hash=User.set_password(request.form['password']))  # type: ignore
+
+            if user:
+                db.session.add(user)
+                db.session.commit()
+                return redirect(url_for('login'))
+            else:
+                return redirect(url_for('sign_up'))
+
+    return render_template('signup.html', form=sign_up_form)
+
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    login_form = SignUpForm()
+    user = User.query.filter_by(email=login_form['email'])
+    if request.method == 'POST':
+        if login_form.validate_on_submit():
+            if User.check_password(request.form['password']) and user:
+                login_user(user)
+
+                return redirect(url_for('home'))
+            else:
+                flash('There is no user with the credentials or they are wrong credentials!', 'error')
+                return redirect(url_for('sign_up'))
+
+    return render_template('login.html', user=user, form=login_form)
 
 
 @app.route('/search-cafe', methods=['POST', 'GET'])
+@login_required
 def search_cafe():
     search_form = CafeSearchForm()
 
     csrf.generate_csrf()
     if search_form.validate_on_submit():
         # Does not filter by the boolean values
+
         searched_cafes = db.session.query(Cafe).filter_by(name=search_form['name'].data,
                                                           location=search_form['location'].data,
                                                           # has_sockets=bool(search_form['has_sockets'].data),
@@ -158,8 +233,10 @@ def search_cafe():
                                                           coffe_price=search_form['coffe_price'].data
         ).all()
 
+        if searched_cafes:
+            flash('No cafe was found...', category='error')
+
         return render_template('search_cafe.html', searched_cafes=searched_cafes, form=search_form)
-    flash('No cafe was found...', category='error')
     return render_template('search_cafe.html', form=search_form)
 
 
@@ -170,12 +247,14 @@ def search_cafe():
 
 
 @app.route('/cafes', methods=['GET'])
+@login_required
 def get_cafes():
     cafes = Cafe.query.all()
     return cafe_schemas.jsonify(cafes)
 
 
 @app.route('/add', methods=['POST', 'GET'])
+@login_required
 def add_cafe():
     form = CafeCreateForm()
     cafes = Cafe.query.all()
@@ -204,6 +283,7 @@ def add_cafe():
 
 
 @app.route('/update/<int:pk>', methods=['PUT', 'GET', 'POST'])
+@login_required
 def update_cafe(pk):
     cafe = Cafe.query.filter_by(id=pk).first()
     request_data = request.form
@@ -231,21 +311,23 @@ def update_cafe(pk):
         flash(f'The cafe with the id {pk} does not exist...', 'error')
     return render_template('update_cafe.html', form=form, cafes=cafes)
 
-# Does not work
+
 @app.route('/cafe/<int:pk>/delete', methods=['POST', 'GET'])
+@login_required
 def delete_cafe(pk):
-    '''Function to delete movie from our database'''
-    cafe = Cafe.query.filter_by(id=pk).first()
-    cafes = Cafe.query.all()
-    if request.method == 'POST':
+        '''Function to delete movie from our database'''
+        cafe = Cafe.query.filter_by(id=pk).first()
+        cafes = Cafe.query.all()
+
         if cafe:
             db.session.delete(cafe)
             db.session.commit()
             return redirect('/')
-        abort_if_cafe_doesnt_exist(pk)
-        flash('The cafe does not exist...', 'error')
+        else:
+            abort_if_cafe_doesnt_exist(pk)
+            flash('The cafe does not exist...', 'error')
 
-    return render_template('index.html', cafes=cafes)
+        return render_template('index.html', cafes=cafes)
 
 
 # class Cafes(Resource):

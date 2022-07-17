@@ -2,10 +2,12 @@
 
 
 {% block links %}
- <form action="{{ url_for('add_cafe') }}" class="form-inline my-2 my-lg-0" method="post">
-                {{ form.hidden_tag() }}
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Create a cafe</button>
-    </form>
+
+        <form action="{{ url_for('logout') }}" class="form-inline my-2 my-lg-0" method="post">
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+        </form>
+
 {% endblock %}
 
 {% block head %}
