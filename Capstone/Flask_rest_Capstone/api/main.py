@@ -74,7 +74,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    email = db.Column(db.String(50), nullable=False, unique=True)
+    email = db.Column(db.String(80), nullable=False, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=True)
     joined_at = db.Column(db.DateTime(), default=datetime.datetime.utcnow(), index=True)
     password_hash = db.Column(db.String(50), nullable=False)
@@ -183,40 +183,39 @@ def home():
 
 @app.route('/sign-up', methods=['POST', 'GET'])
 def sign_up():
-    sign_up_form = SignUpForm()
-    user = db.session.query(User).filter(User.email == sign_up_form['email'].data).first()
 
-    if user:
-        flash("That email address is already registered")
-        return render_template("register.html", form=sign_up_form)
-    if sign_up_form.validate_on_submit():
+    if request.method == 'POST':
+        signup_form = SignUpForm()
+        if signup_form.validate_on_submit():
+            if not User.query.filter_by(email=signup_form.email.data):
+                user = User(name=signup_form.username.data, #type: ignore
+                            email=signup_form.email.data,   #type: ignore
+                            password_hash=signup_form.password.data) #type: ignore
+                db.session.add(user)
+                db.session.commit()
+                return redirect(url_for('home'))
 
-            user = User(name=sign_up_form['username'].data, email=sign_up_form['email'].data,  # type: ignore
-                        password_hash=sign_up_form['password'].data)  # type: ignore
-            db.session.add(user)
-            db.session.commit()
-            flash("You have successfully registered! You may now login.")
+            flash('The user already exists...', category='error')
             return redirect(url_for('login'))
 
-    return render_template('signup.html', form=sign_up_form)
+    return render_template('signup.html', form=signup_form)
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    login_form = SignUpForm()
+    login_form = LogInForm()
+    user = db.session.query(User).filter(User.email == login_form['email'].data).first()
 
-    if login_form.validate_on_submit():
-        user = db.session.query(User).filter(User.email == request.form.get('email')).first()
-        if User.check_password(login_form['password'].data) and user:
-            login_user(user)
-            return redirect(url_for('home'))
+    if request.method == 'POST':
+        if login_form.validate_on_submit():
+            if user and user.password_hash == login_form.password.data:
+                login_user(user)
+                return redirect(url_for('home'))
+            else:
+                flash('You should register prior to logging in!', category='error')
+                return redirect(url_for('sign_up'))
 
-        else:
-            # When login details are incorrect
-            flash("Invalid email or password")
-            return redirect(url_for('sign_up'))
-
-    return render_template('login.html', form=login_form)
+    return render_template('login.html', form=login_form, user=current_user)
 
 
 @app.route('/logout', methods=['POST', 'GET'])
