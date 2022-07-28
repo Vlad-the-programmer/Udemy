@@ -1,0 +1,14 @@
+{% extends './base.html' %}
+
+{% block title %} Home page {% endblock %}
+
+{% block content %}
+    {% for product in products %}
+<ul>
+        <li>{{ product.name }}</li>
+        <li>{{ product.description }}</li>
+        <li>{{ product.price }}</li>
+        <img src="{{ product.image.url }}" width="200px" height="200px">
+</ul>
+    {% endfor %}
+{% endblock %}

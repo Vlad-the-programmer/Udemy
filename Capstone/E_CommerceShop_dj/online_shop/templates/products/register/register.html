@@ -1,0 +1,14 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Sign Page{% endblock title %}
+
+{% block content %}
+    <h2>Sign Page</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+        <br><br>
+        <a href="{% url 'products' %}">Home</a>
+    </form>
+{% endblock %}
