@@ -51,7 +51,7 @@ class Customer(models.Model):
     phone = models.CharField(max_length=10)
     email = models.EmailField()
     password = models.CharField(max_length=100)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
     # to save the data
