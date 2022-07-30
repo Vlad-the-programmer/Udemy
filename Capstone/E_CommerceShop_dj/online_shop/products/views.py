@@ -48,7 +48,9 @@ class SignUpView(LoginRequiredMixin, CreateView):
     
         if form.is_valid():
             user = form.save(commit=False)
+            user.save()
             context = {'user': user}
+            
             return render(request, 'products/index.html', context)
        
         return redirect('register')
