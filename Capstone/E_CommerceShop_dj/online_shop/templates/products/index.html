@@ -2,13 +2,51 @@
 
 {% block title %} Home page {% endblock %}
 
-{% block content %}
-    {% for product in products %}
-<ul>
-        <li>{{ product.name }}</li>
-        <li>{{ product.description }}</li>
-        <li>{{ product.price }}</li>
-        <img src="{{ product.image.url }}" width="200px" height="200px">
-</ul>
-    {% endfor %}
+{% block messages %}
 {% endblock %}
+
+{% block content %}
+<div class='container' id='formToCollapse'>
+
+<form class="form-inline my-2 my-lg-0 mr-lg-4 ml-xl-1"  method='get'>
+    {{ filter.form.as_p }}
+  <button class="btn btn-outline-success my-lg-4 mx-lg-3" type="submit">Search</button> 
+  <a href="{% url 'products' %}" class="btn btn-outline-success my-2 my-sm-0" type="reset">Reset</a>
+</form>
+</div>
+
+<div class='container mr-lg-5'>
+<button class="btn btn-primary  my-3 align-middle" type="button" data-toggle="collapse" data-target="#formToCollapse" aria-expanded="false" aria-controls="formToCollapse">
+    Filter products/Collapse the filter
+  </button>
+</div>
+
+<div class='container'>
+
+    {% for product in products %}
+        <div class="card d-inline-block" style="width: 18rem;">
+            <img class="card-img-top" src="{{ product.image.url }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }} </h5>
+                <p class="card-text">{{ product.description }}</p>
+                <li>{{ product.price }}</li>
+                <a href="{% url 'update-product' pk=product.product_id %}" class="btn btn-info my-sm-2">Update</a>
+                <a href="#" class="btn btn-danger my-sm-2">Delete</a>
+
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class='container'>
+
+    <form method='post'>
+        {% csrf_token %}
+        <div class='container'>
+            {% for error in form.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {{form.as_p}}
+    </form>
+{% endblock %}
+</div>

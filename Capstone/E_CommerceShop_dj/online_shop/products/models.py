@@ -1,22 +1,29 @@
 from django.db import models
 
-import datetime
+import uuid  
 
-from django.db import models
-from django.contrib.auth.models import User
-
+from django.core import validators
+from user_auth.models import Customer
 
 class Product(models.Model):
-    name = models.CharField(max_length=30, null=True, unique=False)
-    description = models.CharField(max_length=500, null=True, default='')
-    price = models.FloatField('A price', null=True, max_length=4)
-    image = models.ImageField(verbose_name='A image of the product', upload_to="img/")
-
+    
+    # product_id = models.UUIDField("A Product id",primary_key=True, default=uuid.uuid4,
+    #                               editable=False)
+    product_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, null=False, blank=False)
+    description = models.CharField(max_length=500, default='', blank=True)
+    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    price = models.DecimalField('A price', default=0, max_digits=4,
+                                decimal_places=2)
+    image = models.ImageField(verbose_name='An image of the product',
+                              upload_to="products/")
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+    
     def get_absolute_url(self):
         return '/products/'
 
     def __repr__(self):
-        return f'{self.id} {self.description} {self.price} '
+        return f'{self.id} {self.description} {self.price}'
 
     @staticmethod
     def get_products_by_id(ids):
@@ -27,16 +34,23 @@ class Product(models.Model):
         return Product.objects.all()
 
     @staticmethod
-    def get_all_products_by_categoryid(category_id):
+    def get_all_products_by_category_id(category_id):
         if category_id:
             return Product.objects.filter(category=category_id)
         else:
             return Product.get_all_products()
 
-
+    class Meta:
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
+        
+        
 class Category(models.Model):
-    name = models.CharField(max_length=30)
-
+    category_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, null=False, blank=False)
+    # category_id = models.UUIDField("A Category id", default=uuid.uuid4,
+    #                                editable=False)
+    
     @staticmethod
     def get_all_categories():
         return Category.objects.all()
@@ -44,50 +58,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
-class Customer(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=10)
-    email = models.EmailField()
-    password = models.CharField(max_length=100)
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    # to save the data
-    def register(self):
-        self.save()
-
-    @staticmethod
-    def get_customer_by_email(email):
-        try:
-            return Customer.objects.get(email=email)
-        except:
-            return False
-
-    def isExists(self):
-        if Customer.objects.filter(email=self.email):
-            return True
-
-        return False
-
-
-class Order(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
-    price = models.IntegerField()
-    address = models.CharField(max_length=50, null=False)
-    phone = models.CharField(max_length=12, default='', null=True)
-    date = models.DateField(default=datetime.datetime.today)
-    status = models.BooleanField(default=False)
-
-    def placeOrder(self):
-        self.save()
-
-    @staticmethod
-    def get_orders_by_customer(customer_id):
-        return Order.objects.filter(customer=customer_id).order_by('-date')
-
-
-
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'

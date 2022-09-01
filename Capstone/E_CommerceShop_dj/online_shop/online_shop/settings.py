@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+from audioop import reverse
 from pathlib import Path
 import os
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +29,7 @@ SECRET_KEY = 'django-insecure-r+@0y+g=oop2hpmu=lttycwxtxqkf*(7%ifj5h3i2gdo^fm2ug
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+SITE_ID=1
 
 # Application definition
 
@@ -36,8 +39,19 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
-    'products',
+    'rest_framework',
+     'crispy_forms',
+     "crispy_bootstrap5",
+    'allauth',
+    'allauth.account',
+    'django_filters',
+    'products.apps.ProductsConfig',
+    'user_auth.apps.UserAuthConfig',
+    'orders.apps.OrdersConfig',
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -112,6 +126,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -120,7 +135,7 @@ STATIC_URL = 'staticfiles/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles/')]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, STATIC_URL)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'staticfiles/media')
 MEDIA_URL = '/media/'
 
 # Default primary key field type
@@ -128,5 +143,32 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'products'
-LOGIN_URL = 'login'
+AUTH_USER_MODEL = 'user_auth.Customer'
+
+LOGIN_REDIRECT_URL = reverse_lazy('products')
+LOGIN_URL = reverse_lazy('login')
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('login')
+ACCOUNT_FORMS = {
+    'signup': 'products.forms.SignUpForm',
+    'login': 'products.forms.LoginForm',
+     
+}
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
