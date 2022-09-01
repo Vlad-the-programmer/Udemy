@@ -9,7 +9,7 @@ class SignUpForm(UserCreationForm):
     
     class Meta(UserCreationForm.Meta):
         model = Customer
-        fields = UserCreationForm.Meta.fields + ('phone', 'username', 'first_name', 'last_name', 'email')
+        fields = UserCreationForm.Meta.fields + ('phone', 'username', 'first_name', 'last_name', 'email', 'featured_img')
         
         # def __init__(self, *args, **kwargs):
         #     super(SignUpForm, self).__init__(*args, **kwargs)

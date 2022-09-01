@@ -12,7 +12,8 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.detail import DetailView
 from django.views import generic
 
 from .filters import ProductsFilter
@@ -24,19 +25,17 @@ class ProductRetrieveListApi(
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
-    # filterset_fields = ['name', 'price']
-    # search_fields = ['name', 'price']
     
-    @csrf_protect
-    def post(self, request, *args, **kwargs):
-        form = ProductCreateForm(request.POST, request.FILES)
-        if request.method == 'POST':
-            if form.is_valid():
-                form.save()
-                return redirect('/')
+    # @csrf_protect
+    # def post(self, request, *args, **kwargs):
+    #     form = ProductCreateForm(request.POST, request.FILES)
+    #     if request.method == 'POST':
+    #         if form.is_valid():
+    #             form.save()
+    #             return redirect(reverse_lazy('products:products'))
 
-        context = {'form': form, 'products': self.get_queryset()}
-        return render(request, 'products/index.html', context)
+    #     context = {'form': form, 'products': self.get_queryset()}
+    #     return render(request, 'products/index.html', context)
 
     def get(self, request, *args, **kwargs):
         self.request = request
@@ -61,12 +60,15 @@ class CreateProductView(
     model = Product
     template_name = "products/product_create.html"
     form_class = ProductCreateForm
-    success_url = reverse_lazy('products')
+    success_url = reverse_lazy('products:products')
     
     def post(self, request, *args, **kwargs):
         form = ProductCreateForm(data=request.POST, files=request.FILES)
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            product.owner = request.user
+            product.save()
+            
             messages.success(request, 'The product was successfully created!')
             return redirect(self.success_url)
         
@@ -81,16 +83,19 @@ class CreateProductView(
 class UpdateProductView(LoginRequiredMixin,
                         UpdateView):
     
-    template_name = 'products/update_product.html'
+    template_name = 'products/product_update.html'
     form_class = ProductCreateForm
-    success_url = reverse_lazy('products')
+    success_url = reverse_lazy('products:products')
     
     
     def post(self, request, *args, **kwargs):
-        form = ProductCreateForm(request.POST, request.FILES,
-                                 instance=self.get_object())
+        form = ProductCreateForm(instance=self.get_object())
         if form.is_valid():
             form.save()
+            # product = form.save(commit=False)
+            # product.owner = request.user
+            # product.save()
+            
             messages.success(request, 'Successfully updated!')
             return redirect(self.success_url)
         
@@ -100,7 +105,38 @@ class UpdateProductView(LoginRequiredMixin,
     def get_object(self, queryset=None):
         object = Product.objects.get(product_id=self.kwargs['pk'])
         return object
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context["form"] = ProductCreateForm(instance=self.get_object())
+        return render(request, self.template_name, context)
+
+
+class DeleteProductView(LoginRequiredMixin, 
+                        DeleteView):
+
+        success_url = reverse_lazy('products:products')
+        context_object_name = 'product'
         
+        def get_queryset(self):
+            queryset = Product.objects.filter(product_id=self.kwargs['pk'])
+            return queryset
+        
+        def delete(self, request, *args, **kwargs):
+            if self.get_queryset:
+                messages.success(request, 'Product deleted successfully!')
+                
+            messages.success(request, 'Product does not exist!')
+            return super().delete(request, *args, **kwargs)
+
+
+class DetailProductView(DetailView):
+    context_object_name = 'product'
+    
+    def get_queryset(self):
+        qs = Product.objects.filter(product_id=self.kwargs['pk'])
+        return qs
+    
     
     
     

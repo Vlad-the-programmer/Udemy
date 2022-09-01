@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="{% url 'products' %}">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{% url 'products:products' %}">Home <span class="sr-only">(current)</span></a>
         </li>
         
         <li class="nav-item dropdown">
@@ -18,7 +18,7 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="#">Profile</a>
-            <a class="dropdown-item" href="{% url 'add-product' %}">Add a product</a>
+            <a class="dropdown-item" href="{% url 'products:add-product' %}">Add a product</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Something else here</a>
           </div>

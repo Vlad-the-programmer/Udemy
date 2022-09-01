@@ -1,8 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-from django.conf.urls.static import static
-from django.conf import settings
+
+app_name = 'user-auth'
 
 urlpatterns = [
 
@@ -12,10 +12,14 @@ urlpatterns = [
                             success_url='products/'), 
                             name='login'
                             ),
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout')
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('profile/', auth_views.LogoutView.as_view(), name='logout'),
+    path('profile-update/<int:pk>', views.UpdateProfileView.as_view(),
+                                            name='profile-update'),
+    path('profile-delete/<int:pk>', views.DeleteProfileView.as_view(),
+                                            name='profile-delete'),
+    
+    
+    
 ] 
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    

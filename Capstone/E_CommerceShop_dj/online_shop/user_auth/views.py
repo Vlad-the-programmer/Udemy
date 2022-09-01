@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect
-from django.views import View
-from .models import Customer
-from .forms import SignUpForm, LoginForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views import generic
+from django.views.generic.detail import DetailView
 
+from .models import Customer
+from .forms import SignUpForm, LoginForm
 
 class SignUpView(FormView):
     form_class = SignUpForm
@@ -77,13 +79,15 @@ def signup(request):
 
 
 def login_user(request):
+    form = LoginForm() 
     
     if request.method == 'POST':
         if form.is_valid():
             form = LoginForm(request.POST)
-            user = authenticate(request,
-                            username=form.changed_data['email'],
-                            password=form.cleaned_data['password'])
+            user = form.save()
+            # user = authenticate(request,
+            #                 username=request.POST['email'],
+            #                 password=request.POST['password'])
             
             if user is not None:
                 login(request, user)
@@ -92,10 +96,70 @@ def login_user(request):
             else:
                 messages.info(request, 'User does not exist!!! Register, please!')
                 return redirect(reverse_lazy('register'))
-        else:
-            form = LoginForm() 
             
         return redirect(reverse_lazy('login'))
     context ={'form': form}
     return render(request, 'login/login.html', context)
 
+
+class ProfileDetailView(DetailView):
+    context_object_name = 'profile'
+    template_name = 'profile_detail.html'
+    
+    def get_queryset(self):
+        queryset = Customer.object.filter(profile=self.request.user.profile)
+        return queryset
+    
+
+class UpdateProfileView(LoginRequiredMixin,
+                        UpdateView):
+    
+    # template_name = 'profile_update.html'
+    form_class = SignUpForm
+    success_url = reverse_lazy('user-auth:profile')
+    
+    
+    def post(self, request, *args, **kwargs):
+        self.request = request
+        
+        form = ProductCreateForm(instance=self.get_object())
+        if form.is_valid():
+            form.save()
+            # product = form.save(commit=False)
+            # product.owner = request.user
+            # product.save()
+            
+            messages.success(request, 'Successfully updated!')
+            return redirect(self.success_url)
+        
+        messages.error(self.request, 'Invalid data!')
+        return super().post(request, *args, **kwargs)
+        
+    def get_object(self, queryset=None):
+        object = Profile.objects.get(profile_id=self.kwargs['pk'])
+        return object
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context["form"] = SignUpForm(instance=self.get_object())
+        return render(request, self.template_name, context)
+
+
+class DeleteProfileView(LoginRequiredMixin, 
+                        DeleteView):
+
+        success_url = reverse_lazy('user-auth:delete-profile')
+        context_object_name = 'profile'
+        
+        def get_queryset(self):
+            queryset = Product.objects.filter(profile_id=self.kwargs['pk'])
+            return queryset
+        
+        def delete(self, request, *args, **kwargs):
+            if self.get_queryset:
+                messages.success(request, 'Profile deleted successfully!')
+                
+            messages.success(request, 'Profile does not exist!')
+            return super().delete(request, *args, **kwargs)
+
+    

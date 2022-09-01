@@ -5,27 +5,29 @@ from .models import Customer, Profile
 @receiver(post_save, sender=Customer)
 def create_profile(sender, instance, created, **kwargs):
     user = instance
-    if created:
+    if created and not user.exists():
         Profile.objects.create(
-            owner=user
-        )
-        #     first_name=user.first_name or None,
-        #     last_name=user.last_name or None,
-        #     username=user.username or None,
-        #     phone=user.phone or None,
-        #     email=user.email,
-        #     password=user.password
+        #     owner=user
         # )
-@receiver(post_save, sender=Customer)
-def update_profile(sender, instance, created, **kwargs):
-    print(instance)
-    profile = instance
-    if created == False:
-        Profile.objects.update(
-            first_name=profile.first_name,
-            last_name=profile.last_name,
-            username=profile.username,
-            email=profile.email,
-            password=profile.password,
-            phone=profile.phone,
-            )
+            first_name=user.first_name or None,
+            last_name=user.last_name or None,
+            username=user.username or None,
+            phone=user.phone or None,
+            email=user.email,
+            password=user.password
+            featured_img=user.featured_img
+        )
+        
+# @receiver(pre_save, sender=Customer)
+# def update_profile(sender, instance, created, **kwargs):
+#     print(instance)
+#     profile = instance
+#     if created == False:
+#         Profile.objects.update(
+#             first_name=profile.first_name,
+#             last_name=profile.last_name,
+#             username=profile.username,
+#             email=profile.email,
+#             password=profile.password,
+#             phone=profile.phone,
+#             )

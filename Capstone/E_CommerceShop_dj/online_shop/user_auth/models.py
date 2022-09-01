@@ -5,8 +5,6 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from .managers import UserManager
 
 
-import uuid
-
 class Customer(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -15,8 +13,8 @@ class Customer(AbstractUser):
     
     # id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
     cutomer_id = models.AutoField(primary_key=True)
-    profile = models.OneToOneField("Profile", related_name="profile",
-                                   on_delete=models.CASCADE, null=True)
+    # profile = models.OneToOneField("Profile", related_name="profile",
+    #                                on_delete=models.CASCADE, null=True)
     
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
@@ -37,7 +35,7 @@ class Customer(AbstractUser):
         except:
             return False
 
-    def isExists(self):
+    def exists(self):
         if Customer.objects.filter(email=self.email):
             return True
 
@@ -49,14 +47,18 @@ class Customer(AbstractUser):
 
 
 class Profile(models.Model):
-    
+    profile_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True, blank=True)
-    email = models.EmailField(primary_key=True, unique=True, validators=[validators.EmailValidator()])
+    description  = models.TextField(max_length=1000,blank=True, null=True)
+    email = models.EmailField(validators=[validators.EmailValidator()])
     password = models.CharField(max_length=100, null=True, blank=True)
-    # Add a photo field
-    owner = models.OneToOneField(Customer, related_name='profile_owner',
+    featured_img = models.ImageField(verbose_name='A profile image',
+                                     upload_to='profiles', 
+                                     default='products/profile_default.jpg')
+    
+    owner = models.OneToOneField(Customer, related_name='owner',
                                  on_delete=models.SET_NULL, null=True)
     username = models.CharField(max_length=30, null=True, blank=True,
                                 validators=[UnicodeUsernameValidator()])

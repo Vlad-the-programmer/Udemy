@@ -11,7 +11,7 @@ class Product(models.Model):
     #                               editable=False)
     product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False)
-    description = models.CharField(max_length=500, default='', blank=True)
+    description  = models.TextField(max_length=1000,blank=True, null=True)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
     price = models.DecimalField('A price', default=0, max_digits=4,
                                 decimal_places=2)

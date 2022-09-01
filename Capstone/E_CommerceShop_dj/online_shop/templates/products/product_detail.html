@@ -1,0 +1,20 @@
+{% extends './base.html' %}
+
+{% block title %} Detail a product {% endblock %}
+
+{% block messages %}
+{% endblock %}
+
+{% block content %}
+<div class="card d-inline-block" style="width: 50%; left: 310px; top:30px">
+    <img class="card-img-top" src="{{ product.image.url }}">
+    <div class="card-body">
+        <h5 class="card-title">{{ product.name }} </h5>
+        <p class="card-text">{{ product.description }}</p>
+        <strong>Pice: {{ product.price }}$</strong>
+        
+    </div>
+    <p class="card-text">Created: {{ product.date_created|date:"SHORT_DATE_FORMAT" }} by {{ product.owner.username }}</p>
+
+</div>
+{% endblock %}

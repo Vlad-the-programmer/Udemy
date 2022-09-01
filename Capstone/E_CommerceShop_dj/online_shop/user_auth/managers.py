@@ -10,11 +10,11 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
         )
-        user.first_name = first_name or None
-        user.username = username or None
-        user.last_name = last_name or None
+        user.first_name = first_name 
+        user.username = username 
+        user.last_name = last_name 
         user.set_password(password)  # change password to hash
-        user.phone = phone or None
+        user.phone = phone 
         user.admin = False
         user.staff = True
         user.active = True
@@ -30,11 +30,11 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email)
         )
-        user.first_name = first_name or None
-        user.username = username or None
-        user.last_name = last_name or None
+        user.first_name = first_name 
+        user.username = username 
+        user.last_name = last_name
         user.set_password(password)  # change password to hash
-        user.phone = phone or None
+        user.phone = phone 
         user.admin = True
         user.staff = True
         user.active = True
