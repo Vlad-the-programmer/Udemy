@@ -2,32 +2,37 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
 from .models import Customer, Profile
 
+import datetime
+
 @receiver(post_save, sender=Customer)
 def create_profile(sender, instance, created, **kwargs):
     user = instance
-    if created and not user.exists():
+    if created:
         Profile.objects.create(
-        #     owner=user
-        # )
-            first_name=user.first_name or None,
-            last_name=user.last_name or None,
-            username=user.username or None,
-            phone=user.phone or None,
+            username=user.username,
             email=user.email,
-            password=user.password
-            featured_img=user.featured_img
+            profile=user.profile,
+            password=user.password,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            phone=user.phone,
+            featured_img = profile.featured_img
+            
         )
         
-# @receiver(pre_save, sender=Customer)
-# def update_profile(sender, instance, created, **kwargs):
-#     print(instance)
-#     profile = instance
-#     if created == False:
-#         Profile.objects.update(
-#             first_name=profile.first_name,
-#             last_name=profile.last_name,
-#             username=profile.username,
-#             email=profile.email,
-#             password=profile.password,
-#             phone=profile.phone,
-#             )
+@receiver(pre_save, sender=Profile)
+def update_profile(sender, instance, **kwargs):
+    print(instance)
+    profile = instance
+    if profile.profile_id is not None:
+        Profile.objects.update(
+            
+            username=profile.username,
+            email=profile.email,
+            password=profile.password,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            phone=profile.phone,
+            description=profile.description,
+            featured_img = profile.featured_img,
+            )

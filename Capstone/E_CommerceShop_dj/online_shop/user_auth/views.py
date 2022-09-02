@@ -4,19 +4,19 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.urls import reverse_lazy
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib import messages
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views import generic
 from django.views.generic.detail import DetailView
 
-from .models import Customer
-from .forms import SignUpForm, LoginForm
+from .models import Customer, Profile
+from .forms import SignUpForm, LoginForm, ProfileUpdateForm
 
 class SignUpView(FormView):
     form_class = SignUpForm
     success_url = reverse_lazy('login')
-    template_name = 'register/register.html'
+    template_name = 'auth/register/register.html'
     # redirect_authenticated_user = True
     
     def form_valid(self, form):
@@ -67,15 +67,15 @@ def signup(request):
                     backend='allauth.account.auth_backends.AuthenticationBackend')
                 
                 messages.success(request, 'The account was successfully created!!!')
-                return redirect(reverse_lazy('products'))
+                return redirect(reverse_lazy('products:products'))
+            
             messages.error(request, f'{form.errors}') 
-            # print(form.errors.as_json())  
-            return redirect(reverse_lazy('register'))
+            return redirect(reverse_lazy('user-auth:register'))
     
-        return redirect(reverse_lazy('login'))
+        return redirect(reverse_lazy('user-auth:login'))
     form = SignUpForm()
-    context = {'form': form}
-    return render(request, 'register/register.html', context)
+    context = {'form': form, 'user': request.user}
+    return render(request, 'auth/register/register.html', context)
 
 
 def login_user(request):
@@ -95,65 +95,64 @@ def login_user(request):
                                 {user.get_username}')
             else:
                 messages.info(request, 'User does not exist!!! Register, please!')
-                return redirect(reverse_lazy('register'))
+                return redirect(reverse_lazy('user-auth:register'))
             
-        return redirect(reverse_lazy('login'))
+        return redirect(reverse_lazy('user-auth:login'))
     context ={'form': form}
     return render(request, 'login/login.html', context)
 
 
-class ProfileDetailView(DetailView):
-    context_object_name = 'profile'
-    template_name = 'profile_detail.html'
+class ProfileDetailView(LoginRequiredMixin,
+                        DetailView):
     
-    def get_queryset(self):
-        queryset = Customer.object.filter(profile=self.request.user.profile)
-        return queryset
+    context_object_name = 'profile'
+    template_name = 'auth/profile_detail.html'
+    
+    def get_object(self):
+        customer = Customer.objects.get(customer_id=self.request.user.customer_id)
+        return customer.profile
     
 
 class UpdateProfileView(LoginRequiredMixin,
                         UpdateView):
     
-    # template_name = 'profile_update.html'
-    form_class = SignUpForm
-    success_url = reverse_lazy('user-auth:profile')
+    template_name = 'auth/profile_update.html'
+    form_class = ProfileUpdateForm
+    success_url = reverse_lazy('user-auth:profile-detail')
     
-    
+    @csrf_exempt
     def post(self, request, *args, **kwargs):
-        self.request = request
         
-        form = ProductCreateForm(instance=self.get_object())
+        form = ProfileUpdateForm(instance=self.get_object())
         if form.is_valid():
             form.save()
-            # product = form.save(commit=False)
-            # product.owner = request.user
-            # product.save()
             
             messages.success(request, 'Successfully updated!')
             return redirect(self.success_url)
         
-        messages.error(self.request, 'Invalid data!')
+        messages.error(request, 'Invalid data!')
         return super().post(request, *args, **kwargs)
         
     def get_object(self, queryset=None):
-        object = Profile.objects.get(profile_id=self.kwargs['pk'])
-        return object
+        customer = Customer.objects.get(customer_id=self.request.user.customer_id)
+        return customer.profile
 
     def get(self, request, *args, **kwargs):
         context = {}
-        context["form"] = SignUpForm(instance=self.get_object())
+        context["form"] = ProfileUpdateForm(instance=self.get_object())
         return render(request, self.template_name, context)
 
 
 class DeleteProfileView(LoginRequiredMixin, 
                         DeleteView):
 
-        success_url = reverse_lazy('user-auth:delete-profile')
+        success_url = reverse_lazy('user-auth:profile-detail')
         context_object_name = 'profile'
+        template_name = 'auth/profile_confirm_delete.html'
         
-        def get_queryset(self):
-            queryset = Product.objects.filter(profile_id=self.kwargs['pk'])
-            return queryset
+        def get_object(self):
+            customer = Customer.objects.get(customer_id=self.request.user.customer_id)
+            return customer.profile
         
         def delete(self, request, *args, **kwargs):
             if self.get_queryset:

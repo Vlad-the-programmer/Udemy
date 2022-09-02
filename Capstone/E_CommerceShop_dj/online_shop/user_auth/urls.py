@@ -8,15 +8,15 @@ urlpatterns = [
 
     path('register/', views.signup, name='register'),
     path('accounts/login/', auth_views.LoginView.as_view(
-                            template_name='login/login.html',
+                            template_name='auth/login/login.html',
                             success_url='products/'), 
                             name='login'
                             ),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('profile/', auth_views.LogoutView.as_view(), name='logout'),
-    path('profile-update/<int:pk>', views.UpdateProfileView.as_view(),
+    path('profile-detail/', views.ProfileDetailView.as_view(), name='profile-detail'),
+    path('profile-update/', views.UpdateProfileView.as_view(),
                                             name='profile-update'),
-    path('profile-delete/<int:pk>', views.DeleteProfileView.as_view(),
+    path('profile-delete/', views.DeleteProfileView.as_view(),
                                             name='profile-delete'),
     
     

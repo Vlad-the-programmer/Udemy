@@ -12,12 +12,15 @@ class Customer(AbstractUser):
     objects = UserManager()
     
     # id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
-    cutomer_id = models.AutoField(primary_key=True)
-    # profile = models.OneToOneField("Profile", related_name="profile",
-    #                                on_delete=models.CASCADE, null=True)
+    customer_id = models.AutoField(primary_key=True)
+    profile = models.OneToOneField("Profile", related_name="profile",
+                                   on_delete=models.CASCADE, null=True)
     
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
+    featured_img = models.ImageField(verbose_name='A profile image',
+                                     upload_to='profiles', 
+                                     default='products/profile_default.jpg')
     username = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True,  blank=True)
     email = models.EmailField(validators=[validators.EmailValidator()],
@@ -48,21 +51,22 @@ class Customer(AbstractUser):
 
 class Profile(models.Model):
     profile_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=50,blank=True, null=True)
+    description  = models.TextField(max_length=1000,blank=True, null=True)
+    email = models.EmailField(validators=[validators.EmailValidator()],
+                              unique=True, null=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    phone = models.CharField(max_length=10, default='', null=True, blank=True)
-    description  = models.TextField(max_length=1000,blank=True, null=True)
-    email = models.EmailField(validators=[validators.EmailValidator()])
-    password = models.CharField(max_length=100, null=True, blank=True)
     featured_img = models.ImageField(verbose_name='A profile image',
                                      upload_to='profiles', 
                                      default='products/profile_default.jpg')
-    
-    owner = models.OneToOneField(Customer, related_name='owner',
-                                 on_delete=models.SET_NULL, null=True)
-    username = models.CharField(max_length=30, null=True, blank=True,
-                                validators=[UnicodeUsernameValidator()])
+    username = models.CharField(max_length=30, null=True, blank=True)
+    phone = models.CharField(max_length=10, default='', null=True,  blank=True)
+    email = models.EmailField(validators=[validators.EmailValidator()],
+                              unique=True)
+    password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
         verbose_name = 'Profile'

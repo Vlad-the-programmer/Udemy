@@ -145,9 +145,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user_auth.Customer'
 
-LOGIN_REDIRECT_URL = reverse_lazy('products')
-LOGIN_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('products:products')
+LOGIN_URL = reverse_lazy('user-auth:login')
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+LOGOUT_REDIRECT_URL = reverse_lazy('user-auth:login')
 # ACCOUNT_EMAIL_REQUIRED = True
 # ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('login')
 ACCOUNT_FORMS = {
