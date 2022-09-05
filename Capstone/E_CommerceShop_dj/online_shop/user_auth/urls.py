@@ -13,10 +13,10 @@ urlpatterns = [
                             name='login'
                             ),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('profile-detail/', views.ProfileDetailView.as_view(), name='profile-detail'),
-    path('profile-update/', views.UpdateProfileView.as_view(),
+    path('profile-detail/<int:pk>/', views.ProfileDetailView.as_view(), name='profile-detail'),
+    path('profile-update/<int:pk>/', views.UpdateProfileView.as_view(),
                                             name='profile-update'),
-    path('profile-delete/', views.DeleteProfileView.as_view(),
+    path('profile-delete/<int:pk>/', views.DeleteProfileView.as_view(),
                                             name='profile-delete'),
     
     

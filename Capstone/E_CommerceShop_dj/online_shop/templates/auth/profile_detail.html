@@ -8,12 +8,12 @@
 {% block content %}
 
 <div class='container'>
-
+    
         <div class="card d-inline-block" style="width: 18rem;">
-            <img class="card-img-top" src="{{ user.featured_image.url }}">
+            <img class="card-img-top" src="{{ profile.featured_image.url }}">
             <div class="card-body">
                 <h5 class="card-title">{{ profile.username }} </h5>
-                <p class="card-text">{{ profile.description }}</p>
+                <p class="card-text">{% if profile.description %}{{ profile.description }}{% else %} {% endif %}</p>
                 <li>{{ profile.price }}</li>
                 {% comment %} <a href="{% url 'products:update-profile' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
                 <a href="{% url 'products:delete-profile' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> {% endcomment %}
@@ -23,10 +23,10 @@
 
         </div>
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            <a class="dropdown-item"  href="{% url 'user-auth:profile-update'  %}">Update Profile</a>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-delete'  %}">Delete Profile</a>
+            <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=profile.profile_id %}">Update Profile</a>
+            <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}">Delete Profile</a>
 
         </button>
-
+{{ profile}}
 
 {% endblock %}

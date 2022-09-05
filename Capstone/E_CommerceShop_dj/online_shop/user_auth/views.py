@@ -12,6 +12,8 @@ from django.views.generic.detail import DetailView
 
 from .models import Customer, Profile
 from .forms import SignUpForm, LoginForm, ProfileUpdateForm
+from django.http.response import Http404
+
 
 class SignUpView(FormView):
     form_class = SignUpForm
@@ -47,7 +49,7 @@ class SignUpView(FormView):
 def logout(request):
     return logout_then_login(request, login_url='login/')
 
-@csrf_protect
+@csrf_exempt
 def signup(request):
     if request.method == 'POST':
         
@@ -109,8 +111,14 @@ class ProfileDetailView(LoginRequiredMixin,
     template_name = 'auth/profile_detail.html'
     
     def get_object(self):
-        customer = Customer.objects.get(customer_id=self.request.user.customer_id)
-        return customer.profile
+        try:
+            profile = Profile.objects.filter(profile_id=self.kwargs['pk']).first()
+            print(profile.profile_id)
+            return profile
+        except:
+            return Http404
+        
+   
     
 
 class UpdateProfileView(LoginRequiredMixin,
@@ -122,24 +130,34 @@ class UpdateProfileView(LoginRequiredMixin,
     
     @csrf_exempt
     def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+        form = ProfileUpdateForm(instance=profile)
+        if request.method == 'POST':
+            form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                if not Customer.objects.filter(profile=profile).first():
+                    form.save()
+                
+                messages.success(request, 'Successfully updated!')
+                return redirect(self.success_url)
         
-        form = ProfileUpdateForm(instance=self.get_object())
-        if form.is_valid():
-            form.save()
-            
-            messages.success(request, 'Successfully updated!')
-            return redirect(self.success_url)
-        
-        messages.error(request, 'Invalid data!')
-        return super().post(request, *args, **kwargs)
+            messages.error(request, 'Invalid data!')
+            return super().post(request, *args, **kwargs)
         
     def get_object(self, queryset=None):
-        customer = Customer.objects.get(customer_id=self.request.user.customer_id)
-        return customer.profile
+        try:
+            profile = Profile.objects.filter(profile_id=self.kwargs['pk']).first()
+        except:
+            return Http404
+        
+            print(profile.profile_id)
+            return profile
 
     def get(self, request, *args, **kwargs):
         context = {}
         context["form"] = ProfileUpdateForm(instance=self.get_object())
+        context['profile'] = self.get_object()
+        context['user'] = request.user
         return render(request, self.template_name, context)
 
 
@@ -150,15 +168,24 @@ class DeleteProfileView(LoginRequiredMixin,
         context_object_name = 'profile'
         template_name = 'auth/profile_confirm_delete.html'
         
-        def get_object(self):
-            customer = Customer.objects.get(customer_id=self.request.user.customer_id)
-            return customer.profile
         
-        def delete(self, request, *args, **kwargs):
+        def post(self, request, *args, **kwargs):
+            self.request = request
+            
             if self.get_queryset:
                 messages.success(request, 'Profile deleted successfully!')
                 
             messages.success(request, 'Profile does not exist!')
-            return super().delete(request, *args, **kwargs)
+            return super().post(request, *args, **kwargs)
 
-    
+        # def get_object(self):
+        #     customer = Customer.objects.get(customer_id=self.kwargs['pk'])
+        #     return customer.profile
+        def get_object(self):
+            try:
+                profile = Profile.objects.get(profile_id=self.kwargs['pk'])
+            except:
+                return Http404
+        
+                print(profile.profile_id)
+                return profile

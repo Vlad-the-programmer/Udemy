@@ -16,21 +16,23 @@
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             See more
           </a>
+        {% if user.is_authenticated %}
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="{% url 'user-auth:profile-detail'  %}">Profile</a>
+            <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a>
             <a class="dropdown-item" href="{% url 'products:add-product' %}">Add a product</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-update'  %}">Update Profile</a>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-delete' %}">Delete Profile</a>
+            {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-update' pk=profile.profile_id  %}">Update Profile</a> {% endcomment %}
+            {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}">Delete Profile</a> {% endcomment %}
 
           </div> 
+          {% endif %}
         </li>
-        
+  
       </ul>
 
     </div>
     {% if user.is_authenticated %}
-    <h6>Hello, {{ user.username }}!</h6>
+    <h6>Hello, {{ user.username }}!</h6>      
         <form class="form-inline my-4 my-lg-0 ml-3" action="{% url 'user-auth:logout' %}">
                 {% csrf_token %}
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>

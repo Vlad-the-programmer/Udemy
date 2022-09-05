@@ -7,11 +7,10 @@ from django.contrib.auth import password_validation
 
 # Sign Up Form
 class SignUpForm(UserCreationForm):
-    description  = forms.TextInput()
 
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = Customer
-        fields = UserCreationForm.Meta.fields + ('phone', 'first_name', 'last_name', 'email', 'featured_img')
+        fields = ('username','phone', 'first_name', 'last_name', 'email', 'featured_img') 
         
         # def __init__(self, *args, **kwargs):
         #     super(SignUpForm, self).__init__(*args, **kwargs)
@@ -28,7 +27,7 @@ class SignUpForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password1'])
-        user.profile.description = self.cleaned_data['description']
+        # user.profile.description = self.cleaned_data['description']
         if commit:
             user.save()
 
@@ -62,14 +61,17 @@ class ProfileUpdateForm(UserCreationForm):
         required=False
     )
 
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = Profile
-        fields = UserCreationForm.Meta.fields +('phone', 'first_name', 'last_name', 'email', 'featured_img', 'description')
+        fields = ('username', 'phone', 'first_name', 'last_name', 'email', 'featured_img', 'description', 'gender')
         
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
+    def save(self, commit=True, force_insert=False, force_update=True):
+        # user = super().save(commit=False)
+        self.set_password(self.cleaned_data['password1'])
+        self.email = user.email.lower()
         if commit:
-            user.save()
-
+            profile = Profile.objects.filter(email_iexact=self.cleaned_data.get('email'))
+            if not profile.exists():
+                super(ProfileUpdateForm, self).save(force_insert, force_update)
+            
         return user
