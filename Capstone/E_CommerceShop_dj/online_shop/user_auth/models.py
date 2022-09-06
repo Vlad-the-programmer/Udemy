@@ -20,19 +20,24 @@ class Customer(AbstractUser):
     
     # id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
     customer_id = models.AutoField(primary_key=True)
-    profile = models.OneToOneField("Profile", related_name="profile",
-                                   on_delete=models.CASCADE, null=True)
+    # profile = models.OneToOneField("Profile", related_name="profile",
+                                #    on_delete=models.CASCADE, null=True)
     
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    featured_img = models.ImageField(verbose_name='A profile image',
-                                     upload_to='profiles', 
-                                     default='products/profile_default.jpg')
+    # featured_img = models.ImageField(verbose_name='A profile image',
+    #                                  upload_to='profiles', 
+    #                                  default='products/profile_default.jpg')
     username = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True,  blank=True)
     email = models.EmailField(validators=[validators.EmailValidator()])
+    description  = models.TextField(max_length=1000,blank=True, null=True)
     gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
                                 default='Male')
+    
+    featured_img = models.ImageField(verbose_name='A profile image',
+                                     upload_to='profiles', 
+                                     default='products/profile_default.jpg')
     
     password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
@@ -60,35 +65,36 @@ class Customer(AbstractUser):
 
 
 class Profile(models.Model):
-    USERNAME_FIELD = 'email'
+    # USERNAME_FIELD = 'email'
     
     profile_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=50,blank=True, null=True)
-    description  = models.TextField(max_length=1000,blank=True, null=True)
-   
-    first_name = models.CharField(max_length=50, null=True, blank=True)
-    last_name = models.CharField(max_length=50, null=True, blank=True)
-    featured_img = models.ImageField(verbose_name='A profile image',
-                                     upload_to='profiles', 
-                                     default='products/profile_default.jpg')
-    username = models.CharField(max_length=30, null=True, blank=True)
-    phone = models.CharField(max_length=10, default='', null=True,  blank=True)
-    email = models.EmailField(validators=[validators.EmailValidator()])
-    password = models.CharField(max_length=100, null=True, blank=True)
+    # username = models.CharField(max_length=50,blank=True, null=True)
+    # first_name = models.CharField(max_length=50, null=True, blank=True)
+    # last_name = models.CharField(max_length=50, null=True, blank=True)
+    # phone = models.CharField(max_length=10, default='', null=True,  blank=True)
+    # email = models.EmailField(validators=[validators.EmailValidator()])
+    # password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
-    
-    gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
-                                default='Male')
+    user = models.OneToOneField(Customer, on_delete=models.CASCADE,
+                                    related_name="customer", null=True)
+    # gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
+    #                             default='Male')
 
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
-        unique_together = ['email']
+        # unique_together = ['email']
 
     def __str__(self):
-        return f'{self.email} {self.username} {self.profile_id}'
+        return f'{user.email} {user.username} {self.profile_id}'
     
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)
+    # def set_password(self, raw_password):
+    #     self.password = make_password(raw_password)
+    
+    def profile_exists(self, email):
+        profile = Profile.objects.filter(email=email)
+        if profile.exists():
+            return True
+        return False
         

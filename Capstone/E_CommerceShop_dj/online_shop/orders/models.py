@@ -9,7 +9,7 @@ from products.models import Product
 class Order(models.Model):
     # order_id = models.UUIDField("An Order id", primary_key=True, default=uuid.uuid4, editable=False)
     order_id = models.AutoField(primary_key=True)
-    customer = models.ForeignKey(Customer, related_name='customer',
+    customer = models.ForeignKey(Customer, related_name='owner',
                                 on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=1)
     price = models.DecimalField(max_digits=4, decimal_places=2,

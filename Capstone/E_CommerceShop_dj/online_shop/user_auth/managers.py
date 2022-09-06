@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, first_name=None, profile=None, gender=None, featured_img=None, username=None, last_name=None, phone=None, password=None):
+    def create_user(self, email, first_name=None, description=None, gender=None, featured_img=None, username=None, last_name=None, phone=None, password=None):
         if not email:
             raise ValueError("User must have an email")
         if not password:
@@ -16,6 +16,7 @@ class UserManager(BaseUserManager):
         user.set_password(password)  # change password to hash
         user.phone = phone 
         user.featured_img = featured_img
+        user.description = description
         # user.profile = profile
         user.gender = gender
         user.admin = False
@@ -37,7 +38,8 @@ class UserManager(BaseUserManager):
         user.username = username 
         user.last_name = last_name
         user.set_password(password)  # change password to hash
-        user.phone = phone 
+        user.phone = phone
+        user.description = description
         # user.profile = profile
         user.gender = gender
         user.admin = True

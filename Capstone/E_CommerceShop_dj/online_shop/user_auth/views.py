@@ -109,15 +109,19 @@ class ProfileDetailView(LoginRequiredMixin,
     
     context_object_name = 'profile'
     template_name = 'auth/profile_detail.html'
+    model = Profile
     
     def get_object(self):
-        try:
-            profile = Profile.objects.filter(profile_id=self.kwargs['pk']).first()
-            print(profile.profile_id)
-            return profile
-        except:
-            return Http404
-        
+        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
+        return customer.profile
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
+        context['customer'] = customer.profile
+        return context
+    
    
     
 
@@ -127,6 +131,7 @@ class UpdateProfileView(LoginRequiredMixin,
     template_name = 'auth/profile_update.html'
     form_class = ProfileUpdateForm
     success_url = reverse_lazy('user-auth:profile-detail')
+    model = Profile
     
     @csrf_exempt
     def post(self, request, *args, **kwargs):
@@ -144,19 +149,14 @@ class UpdateProfileView(LoginRequiredMixin,
             messages.error(request, 'Invalid data!')
             return super().post(request, *args, **kwargs)
         
-    def get_object(self, queryset=None):
-        try:
-            profile = Profile.objects.filter(profile_id=self.kwargs['pk']).first()
-        except:
-            return Http404
-        
-            print(profile.profile_id)
-            return profile
+    def get_object(self):
+        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
+        return customer.profile
 
     def get(self, request, *args, **kwargs):
         context = {}
         context["form"] = ProfileUpdateForm(instance=self.get_object())
-        context['profile'] = self.get_object()
+        # context['profile'] = self.get_object()
         context['user'] = request.user
         return render(request, self.template_name, context)
 
@@ -167,6 +167,7 @@ class DeleteProfileView(LoginRequiredMixin,
         success_url = reverse_lazy('user-auth:profile-detail')
         context_object_name = 'profile'
         template_name = 'auth/profile_confirm_delete.html'
+        model = Profile
         
         
         def post(self, request, *args, **kwargs):
@@ -178,14 +179,14 @@ class DeleteProfileView(LoginRequiredMixin,
             messages.success(request, 'Profile does not exist!')
             return super().post(request, *args, **kwargs)
 
-        # def get_object(self):
-        #     customer = Customer.objects.get(customer_id=self.kwargs['pk'])
-        #     return customer.profile
         def get_object(self):
-            try:
-                profile = Profile.objects.get(profile_id=self.kwargs['pk'])
-            except:
-                return Http404
+            customer = Customer.objects.get(customer_id=self.kwargs['pk'])
+            return customer.profile
+        # def get_object(self):
+        #     try:
+        #         profile = Profile.objects.get(profile_id=self.kwargs['pk'])
+        #     except:
+        #         return Http404
         
-                print(profile.profile_id)
-                return profile
+        #         print(profile.profile_id)
+        #         return profile

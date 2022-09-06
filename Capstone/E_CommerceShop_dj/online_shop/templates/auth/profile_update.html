@@ -31,7 +31,7 @@
                 {{ form|crispy }}
             <button type="submit">Update</button>
             <br>
-            <a href="{% url 'user-auth:profile-detail' pk=user.profile.profile_id %}">Profile</a>
+            <a href="{% url 'user-auth:profile-detail' pk=user.customer_id %}">Profile</a>
         </form> 
     </div>
     

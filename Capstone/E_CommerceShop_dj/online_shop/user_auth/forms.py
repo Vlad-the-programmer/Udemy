@@ -60,18 +60,19 @@ class ProfileUpdateForm(UserCreationForm):
         help_text="Enter the same password as before, for verification.",
         required=False
     )
-
     class Meta:
-        model = Profile
+        model = Customer
         fields = ('username', 'phone', 'first_name', 'last_name', 'email', 'featured_img', 'description', 'gender')
         
     def save(self, commit=True, force_insert=False, force_update=True):
-        # user = super().save(commit=False)
-        self.set_password(self.cleaned_data['password1'])
-        self.email = user.email.lower()
+        profile = super().save(commit=False)
+        
+        email = self.cleaned_data.get('email')
+        profile.email = email.lower()
+        profile.password = profile.set_password(self.cleaned_data['password1'])
         if commit:
-            profile = Profile.objects.filter(email_iexact=self.cleaned_data.get('email'))
-            if not profile.exists():
+            # profile = Profile.objects.filter(email=profile.email)
+            if not profile.profile_exists():
                 super(ProfileUpdateForm, self).save(force_insert, force_update)
             
-        return user
+        return profile
