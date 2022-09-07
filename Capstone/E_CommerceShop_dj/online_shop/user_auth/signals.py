@@ -22,27 +22,27 @@ def create_profile(sender, instance, created, **kwargs):
             
         )
         # user.profile = user_profile
-        print(user.profile)
         
 @receiver(pre_save, sender=Customer)
 def update_profile(sender, instance, **kwargs):
     # print(instance)
     user = instance
-    if profile.profile_id is not None:
+    if user.customer_id is not None:
         Profile.objects.update(
-            
-            # username=profile.username,
-            # email=profile.email,
-            # password=profile.password,
-            # first_name=profile.first_name,
-            # last_name=profile.last_name,
-            # phone=profile.phone,
-            # description=profile.description,
-            # featured_img = profile.featured_img,
-            # gender=profile.gender
             user=user
             
             )
+        # Customer.objects.update(
+        #     username=user.username,
+        #     email=user.email,
+        #     password=user.password,
+        #     first_name=user.first_name,
+        #     last_name=user.last_name,
+        #     phone=user.phone,
+        #     description=user.description,
+        #     featured_img = user.featured_img,
+        #     gender=user.gender
+        # )
         
 
 @receiver(post_delete, sender=Customer)

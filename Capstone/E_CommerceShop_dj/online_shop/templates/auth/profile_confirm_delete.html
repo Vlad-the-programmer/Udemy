@@ -9,7 +9,7 @@
 <div class='container'>
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
-    <p>Are you sure you want to delete account with the {{profile.email}} email?</p>
+    <p>Are you sure you want to delete account with the {{customer.email}} email?</p>
     <button class="btn btn-success" type="submit">Confirm</button>
     </form>
 </div>

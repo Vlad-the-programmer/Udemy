@@ -30,7 +30,7 @@ class Customer(AbstractUser):
     #                                  default='products/profile_default.jpg')
     username = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True,  blank=True)
-    email = models.EmailField(validators=[validators.EmailValidator()])
+    email = models.EmailField(validators=[validators.EmailValidator()], unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
     gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
                                 default='Male')
@@ -61,7 +61,7 @@ class Customer(AbstractUser):
     class Meta:
         verbose_name = 'Customer'
         verbose_name_plural = 'Customers'
-        unique_together = ['email']
+        # unique_together = ['email']
 
 
 class Profile(models.Model):
@@ -76,7 +76,7 @@ class Profile(models.Model):
     # password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
-    user = models.OneToOneField(Customer, on_delete=models.CASCADE,
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE,
                                     related_name="customer", null=True)
     # gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
     #                             default='Male')
@@ -87,7 +87,7 @@ class Profile(models.Model):
         # unique_together = ['email']
 
     def __str__(self):
-        return f'{user.email} {user.username} {self.profile_id}'
+        return f' {self.profile_id}'
     
     # def set_password(self, raw_password):
     #     self.password = make_password(raw_password)

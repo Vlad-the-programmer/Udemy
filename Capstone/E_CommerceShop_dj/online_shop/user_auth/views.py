@@ -107,19 +107,16 @@ def login_user(request):
 class ProfileDetailView(LoginRequiredMixin,
                         DetailView):
     
-    context_object_name = 'profile'
+    context_object_name = 'customer'
     template_name = 'auth/profile_detail.html'
-    model = Profile
     
     def get_object(self):
-        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
-        return customer.profile
+        profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+        return profile.user
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
-        context['customer'] = customer.profile
         return context
     
    
@@ -130,9 +127,13 @@ class UpdateProfileView(LoginRequiredMixin,
     
     template_name = 'auth/profile_update.html'
     form_class = ProfileUpdateForm
-    success_url = reverse_lazy('user-auth:profile-detail')
-    model = Profile
+    context_object_name = 'customer'
     
+    def get_success_url(self):
+            success_url = reverse_lazy('user-auth:profile-detail', 
+                                   kwargs={'pk': self.request.user.customer_id})
+            return success_url
+        
     @csrf_exempt
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
@@ -140,23 +141,26 @@ class UpdateProfileView(LoginRequiredMixin,
         if request.method == 'POST':
             form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
             if form.is_valid():
-                if not Customer.objects.filter(profile=profile).first():
+                if profile:
                     form.save()
                 
-                messages.success(request, 'Successfully updated!')
-                return redirect(self.success_url)
-        
+                    messages.success(request, 'Successfully updated!')
+                    return redirect(self.get_success_url())
+                
+                messages.success(request, 'Profile does not exist!')
+                return redirect(reverse_lazy('profile-detail',
+                                             kwargs={'pk': self.request.user.customer_id}))
+                
             messages.error(request, 'Invalid data!')
             return super().post(request, *args, **kwargs)
         
     def get_object(self):
-        customer = Customer.objects.get(customer_id=self.kwargs['pk'])
-        return customer.profile
+        profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+        return profile.user
 
     def get(self, request, *args, **kwargs):
         context = {}
         context["form"] = ProfileUpdateForm(instance=self.get_object())
-        # context['profile'] = self.get_object()
         context['user'] = request.user
         return render(request, self.template_name, context)
 
@@ -164,29 +168,26 @@ class UpdateProfileView(LoginRequiredMixin,
 class DeleteProfileView(LoginRequiredMixin, 
                         DeleteView):
 
-        success_url = reverse_lazy('user-auth:profile-detail')
-        context_object_name = 'profile'
+        context_object_name = 'customer'
         template_name = 'auth/profile_confirm_delete.html'
-        model = Profile
         
+        def get_success_url(self):
+            success_url = reverse_lazy('user-auth:profile-detail', 
+                                   kwargs={'pk': self.request.user.customer_id})
+            return success_url
         
         def post(self, request, *args, **kwargs):
             self.request = request
             
-            if self.get_queryset:
+            if self.get_object:
                 messages.success(request, 'Profile deleted successfully!')
                 
+                return super().delete(request, *args, **kwargs)
+            
             messages.success(request, 'Profile does not exist!')
-            return super().post(request, *args, **kwargs)
+            return redirect(reverse_lazy('user-auth:signup'))
 
         def get_object(self):
-            customer = Customer.objects.get(customer_id=self.kwargs['pk'])
-            return customer.profile
-        # def get_object(self):
-        #     try:
-        #         profile = Profile.objects.get(profile_id=self.kwargs['pk'])
-        #     except:
-        #         return Http404
-        
-        #         print(profile.profile_id)
-        #         return profile
+            profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+            return profile.user
+       
