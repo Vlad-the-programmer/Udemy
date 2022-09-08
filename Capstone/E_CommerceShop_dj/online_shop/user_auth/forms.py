@@ -64,15 +64,16 @@ class ProfileUpdateForm(UserCreationForm):
         model = Customer
         fields = ('username', 'phone', 'first_name', 'last_name', 'email', 'featured_img', 'description', 'gender')
         
-    def save(self, commit=True, force_insert=False, force_update=True):
+    def save(self, commit=True):
         customer = super().save(commit=False)
         
         email = self.cleaned_data.get('email')
         customer.email = email.lower()
         customer.password = customer.set_password(self.cleaned_data['password1'])
+        
         if commit:
-            # profile = Profile.objects.filter(email=profile.email)
-            if not customer.exists():
-                super(ProfileUpdateForm, self).save(force_insert, force_update)
+            if customer.exists():
+                super(ProfileUpdateForm, self).save()
+                return customer
             
-        return customer
+            

@@ -147,12 +147,11 @@ class UpdateProfileView(LoginRequiredMixin,
                     messages.success(request, 'Successfully updated!')
                     return redirect(self.get_success_url())
                 
-                messages.success(request, 'Profile does not exist!')
-                return redirect(reverse_lazy('profile-detail',
-                                             kwargs={'pk': self.request.user.customer_id}))
-                
-            messages.error(request, 'Invalid data!')
-            return super().post(request, *args, **kwargs)
+            messages.error(request, 'Profile does not exist!')
+            return redirect(self.get_success_url())
+            
+        messages.error(request, 'Invalid data!')
+        return super().post(request, *args, **kwargs)
         
     def get_object(self):
         profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()

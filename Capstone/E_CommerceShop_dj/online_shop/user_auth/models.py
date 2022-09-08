@@ -3,7 +3,6 @@ from django.core import validators
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from .managers import UserManager
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 
 class Gender(models.TextChoices):
@@ -20,14 +19,8 @@ class Customer(AbstractUser):
     
     # id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
     customer_id = models.AutoField(primary_key=True)
-    # profile = models.OneToOneField("Profile", related_name="profile",
-                                #    on_delete=models.CASCADE, null=True)
-    
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    # featured_img = models.ImageField(verbose_name='A profile image',
-    #                                  upload_to='profiles', 
-    #                                  default='products/profile_default.jpg')
     username = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True,  blank=True)
     email = models.EmailField(validators=[validators.EmailValidator()], unique=True)
@@ -88,9 +81,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return f' {self.profile_id}'
-    
-    # def set_password(self, raw_password):
-    #     self.password = make_password(raw_password)
     
     def profile_exists(self, email):
         profile = Profile.objects.filter(email=email)
