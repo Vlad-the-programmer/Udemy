@@ -13,7 +13,8 @@ from django.views.generic.detail import DetailView
 from .models import Customer, Profile
 from .forms import SignUpForm, LoginForm, ProfileUpdateForm
 from django.http.response import Http404
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 class SignUpView(FormView):
     form_class = SignUpForm
@@ -101,27 +102,28 @@ def login_user(request):
             
         return redirect(reverse_lazy('user-auth:login'))
     context ={'form': form}
-    return render(request, 'login/login.html', context)
+    return render(request, 'auth/login/login.html', context)
 
 
 class ProfileDetailView(LoginRequiredMixin,
                         DetailView):
     
-    context_object_name = 'customer'
+    context_object_name = 'profile'
     template_name = 'auth/profile_detail.html'
     
     def get_object(self):
         profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
-        return profile.user
+        return profile
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        context['profile'] = self.get_object()
+        
         return context
     
    
     
-
 class UpdateProfileView(LoginRequiredMixin,
                         UpdateView):
     
@@ -134,35 +136,41 @@ class UpdateProfileView(LoginRequiredMixin,
                                    kwargs={'pk': self.request.user.customer_id})
             return success_url
         
-    @csrf_exempt
+    @method_decorator(ensure_csrf_cookie, name='dispatch')
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
         form = ProfileUpdateForm(instance=profile)
-        if request.method == 'POST':
-            form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-            if form.is_valid():
-                if profile:
-                    form.save()
-                
-                    messages.success(request, 'Successfully updated!')
-                    return redirect(self.get_success_url())
-                
+        # if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            if profile:
+                form.save()
+            
+                messages.success(request, 'Successfully updated!')
+                return redirect(self.get_success_url())
+            
             messages.error(request, 'Profile does not exist!')
-            return redirect(self.get_success_url())
+            return redirect(reverse_lazy('user-auth:signup'))
             
         messages.error(request, 'Invalid data!')
-        return super().post(request, *args, **kwargs)
+        return render(request, self.template_name, self.get_context_data())
         
     def get_object(self):
         profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
         return profile.user
 
-    def get(self, request, *args, **kwargs):
-        context = {}
-        context["form"] = ProfileUpdateForm(instance=self.get_object())
-        context['user'] = request.user
-        return render(request, self.template_name, context)
+    # def get(self, request, *args, **kwargs):
+    #     context = {}
+    #     context["form"] = ProfileUpdateForm(instance=self.get_object())
+    #     context['user'] = request.user
+    #     return render(request, self.template_name, context)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = ProfileUpdateForm(instance=self.get_object())
+        context['user'] = self.request.user
+        return context
+    
 
 class DeleteProfileView(LoginRequiredMixin, 
                         DeleteView):

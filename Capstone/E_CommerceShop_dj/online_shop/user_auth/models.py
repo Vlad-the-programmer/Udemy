@@ -26,7 +26,7 @@ class Customer(AbstractUser):
     email = models.EmailField(validators=[validators.EmailValidator()], unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
     gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
-                                default='Male')
+                                default='Male', null=True)
     
     featured_img = models.ImageField(verbose_name='A profile image',
                                      upload_to='profiles', 

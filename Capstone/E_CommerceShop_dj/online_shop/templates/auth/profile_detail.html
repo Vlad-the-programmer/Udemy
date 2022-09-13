@@ -12,9 +12,9 @@
         <div class="card d-inline-block" style="width: 18rem;">
             <img class="card-img-top" src="{{ customer.featured_image.url }}">
             <div class="card-body">
-                <h5 class="card-title">{{ customer.username }} </h5>
-                <p class="card-text">{% if customer.description %}{{ customer.description }}{% else %} {% endif %}</p>
-                <li>{{ customer.price }}</li>
+                <h5 class="card-title">{{ profile.user.username }} </h5>
+                <p class="card-text">{% if profile.user.description %}{{ profile.user.description }}{% else %} {% endif %}</p>
+                <li>{{ profile.user.first_name }}</li>
                 {% comment %} <a href="{% url 'products:update-profile' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
                 <a href="{% url 'products:delete-profile' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> {% endcomment %}
 
