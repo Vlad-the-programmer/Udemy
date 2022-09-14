@@ -23,7 +23,8 @@ class Customer(AbstractUser):
     last_name = models.CharField(max_length=50, null=True, blank=True)
     username = models.CharField(max_length=30, null=True, blank=True)
     phone = models.CharField(max_length=10, default='', null=True,  blank=True)
-    email = models.EmailField(validators=[validators.EmailValidator()], unique=True)
+    email = models.EmailField(validators=[validators.EmailValidator()],
+                                                            unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
     gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
                                 default='Male', null=True)
@@ -61,23 +62,14 @@ class Profile(models.Model):
     # USERNAME_FIELD = 'email'
     
     profile_id = models.AutoField(primary_key=True)
-    # username = models.CharField(max_length=50,blank=True, null=True)
-    # first_name = models.CharField(max_length=50, null=True, blank=True)
-    # last_name = models.CharField(max_length=50, null=True, blank=True)
-    # phone = models.CharField(max_length=10, default='', null=True,  blank=True)
-    # email = models.EmailField(validators=[validators.EmailValidator()])
-    # password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE,
                                     related_name="customer", null=True)
-    # gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
-    #                             default='Male')
 
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
-        # unique_together = ['email']
 
     def __str__(self):
         return f' {self.profile_id}'

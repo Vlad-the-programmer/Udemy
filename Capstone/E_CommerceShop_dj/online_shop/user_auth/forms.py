@@ -7,7 +7,7 @@ from django.contrib.auth import password_validation
 
 # Sign Up Form
 class SignUpForm(UserCreationForm):
-
+    
     class Meta:
         model = Customer
         fields = ('username','phone', 'first_name', 'last_name', 'email', 'featured_img') 

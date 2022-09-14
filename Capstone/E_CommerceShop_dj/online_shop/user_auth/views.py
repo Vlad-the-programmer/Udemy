@@ -50,7 +50,7 @@ class SignUpView(FormView):
 def logout(request):
     return logout_then_login(request, login_url='login/')
 
-@csrf_exempt
+@csrf_protect
 def signup(request):
     if request.method == 'POST':
         
@@ -63,11 +63,14 @@ def signup(request):
                 #                     username=email,
                 #                     password=request.POST['password'])
                 
-                user.username = user.username.lower()
+                user.username.lower()
                 user.save()
                 
-                login(request, user, 
-                    backend='allauth.account.auth_backends.AuthenticationBackend')
+                login(
+                    request,
+                    user, 
+                    backend='allauth.account.auth_backends.AuthenticationBackend'
+                )
                 
                 messages.success(request, 'The account was successfully created!!!')
                 return redirect(reverse_lazy('products:products'))
