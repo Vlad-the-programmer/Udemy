@@ -2,7 +2,7 @@ from django.db import models
 from django.core import validators
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from .managers import UserManager
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 
 class Gender(models.TextChoices):
@@ -11,7 +11,7 @@ class Gender(models.TextChoices):
     OTHER = "other", _("Other")
 
     
-class Customer(AbstractUser):
+class Customer(AbstractUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     
@@ -26,15 +26,21 @@ class Customer(AbstractUser):
     email = models.EmailField(validators=[validators.EmailValidator()],
                                                             unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
-    gender = models.CharField('Gender', max_length=10, choices=Gender.choices,
-                                default='Male', null=True)
+    gender = models.CharField(_('Gender'), max_length=10, choices=Gender.choices,
+                                default=_('Male'), null=True)
     
-    featured_img = models.ImageField(verbose_name='A profile image',
+    featured_img = models.ImageField(verbose_name=_('A profile image'),
                                      upload_to='profiles', 
                                      default='products/profile_default.jpg')
     
     password = models.CharField(max_length=100, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+
+    class Meta:
+        verbose_name = _('Customer')
+        verbose_name_plural = _('Customers')
+        # unique_together = ['email']
 
     def __str__(self):
         return f'{self.email} {self.username} {self.customer_id}'
@@ -51,12 +57,13 @@ class Customer(AbstractUser):
             return True
 
         return False
-
-    class Meta:
-        verbose_name = 'Customer'
-        verbose_name_plural = 'Customers'
-        # unique_together = ['email']
-
+    
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+    
+    def get_short_name(self):
+        return self.username
 
 class Profile(models.Model):
     # USERNAME_FIELD = 'email'
@@ -68,8 +75,8 @@ class Profile(models.Model):
                                     related_name="customer", null=True)
 
     class Meta:
-        verbose_name = 'Profile'
-        verbose_name_plural = 'Profiles'
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')
 
     def __str__(self):
         return f' {self.profile_id}'

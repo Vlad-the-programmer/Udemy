@@ -6,7 +6,7 @@ app_name = 'user-auth'
 
 urlpatterns = [
 
-    path('register/', views.signup, name='register'),
+    path('register/', views.SignUpView.as_view(), name='register'),
     path('accounts/login/', auth_views.LoginView.as_view(
                             template_name='auth/login/login.html',
                             success_url='products/'),

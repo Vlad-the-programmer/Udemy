@@ -150,7 +150,7 @@ LOGIN_URL = reverse_lazy('user-auth:login')
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 LOGOUT_REDIRECT_URL = reverse_lazy('user-auth:login')
 # ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('login')
+ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('products')
 ACCOUNT_FORMS = {
     'signup': 'products.forms.SignUpForm',
     'login': 'products.forms.LoginForm',

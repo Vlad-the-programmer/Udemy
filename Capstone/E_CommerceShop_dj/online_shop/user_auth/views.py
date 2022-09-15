@@ -24,20 +24,28 @@ class SignUpView(FormView):
     
     def form_valid(self, form):
         
-        email = request.POST['email']
+        email = self.request.POST['email']
         if Customer.get_customer_by_email(email=email) == False:
-            if form.is_valid():
-                form.save()
-                account = authenticate(request, 
-                                    username=email,
-                                    password=request.POST['password'])
+            
+                user = form.save(commit=False)
+                user.username.lower()
+                user.email.lower()
+                user.save()
                 
-                login(request, account)
-                messages.success(request, 'The account was successfully created!!!')
+                # account = authenticate(self.request, 
+                #                     username=email,
+                #                     password=self.request.POST['password'])
                 
-            return redirect(reverse_lazy('register'))
+                login(
+                    self.request,
+                    user,
+                    backend='allauth.account.auth_backends.AuthenticationBackend'
+                    )
+                messages.success(self.request, 'The account was successfully created!!!')
+                
+                return redirect(reverse_lazy('products:products'))
     
-        return redirect(reverse_lazy('login'))
+        return redirect(reverse_lazy('user-auth:login'))
 
 
     def get_context_data(self, *args, **kwargs):
@@ -50,7 +58,7 @@ class SignUpView(FormView):
 def logout(request):
     return logout_then_login(request, login_url='login/')
 
-@csrf_protect
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 def signup(request):
     if request.method == 'POST':
         
