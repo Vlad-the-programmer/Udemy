@@ -30,11 +30,12 @@
                 <h5 class="card-title">{{ product.name }} </h5>
                 <p class="card-text">{{ product.description| slice:"100" }}</p>
                 <li>{{ product.price }}</li>
-                <a href="{% url 'products:update-product' pk=product.product_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
-                <a href="{% url 'products:delete-product' pk=product.product_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a>
+                {% comment %} {{product.slug}} {% endcomment %}
+                <a href="{% url 'products:update-product' slug=product.slug %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+                <a href="{% url 'products:delete-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a>
 
             </div>
-            <a href="{% url 'products:product-detail' pk=product.product_id %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
+            <a href="{% url 'products:product-detail' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
 
         </div>
     {% endfor %}

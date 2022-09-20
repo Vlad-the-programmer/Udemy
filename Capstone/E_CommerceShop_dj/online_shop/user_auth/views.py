@@ -20,7 +20,6 @@ class SignUpView(FormView):
     form_class = SignUpForm
     success_url = reverse_lazy('login')
     template_name = 'auth/register/register.html'
-    # redirect_authenticated_user = True
     
     def form_valid(self, form):
         
@@ -32,19 +31,16 @@ class SignUpView(FormView):
                 user.email.lower()
                 user.save()
                 
-                # account = authenticate(self.request, 
-                #                     username=email,
-                #                     password=self.request.POST['password'])
-                
                 login(
                     self.request,
                     user,
                     backend='allauth.account.auth_backends.AuthenticationBackend'
                     )
-                messages.success(self.request, 'The account was successfully created!!!')
                 
+                messages.success(self.request, 'The account was successfully created!!!')
                 return redirect(reverse_lazy('products:products'))
-    
+            
+        messages.error(self.request, "User with the email already exists. Try to login.")
         return redirect(reverse_lazy('user-auth:login'))
 
 
@@ -170,12 +166,6 @@ class UpdateProfileView(LoginRequiredMixin,
         profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
         return profile.user
 
-    # def get(self, request, *args, **kwargs):
-    #     context = {}
-    #     context["form"] = ProfileUpdateForm(instance=self.get_object())
-    #     context['user'] = request.user
-    #     return render(request, self.template_name, context)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = ProfileUpdateForm(instance=self.get_object())
@@ -194,9 +184,8 @@ class DeleteProfileView(LoginRequiredMixin,
                                    kwargs={'pk': self.request.user.customer_id})
             return success_url
         
+        @method_decorator(ensure_csrf_cookie, name='dispatch')
         def post(self, request, *args, **kwargs):
-            self.request = request
-            
             if self.get_object:
                 messages.success(request, 'Profile deleted successfully!')
                 

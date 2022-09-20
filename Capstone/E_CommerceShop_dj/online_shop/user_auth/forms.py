@@ -10,7 +10,7 @@ class SignUpForm(UserCreationForm):
     
     class Meta(UserCreationForm):
         model = Customer
-        fields = ('username','phone', 'first_name', 'last_name', 'email', 'featured_img') 
+        fields = ('username', 'phone', 'first_name', 'last_name', 'email', 'featured_img') 
         error_class = 'error'
         
 # Login Up Form

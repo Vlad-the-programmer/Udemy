@@ -4,6 +4,8 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from .managers import UserManager
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
+
 
 class Gender(models.TextChoices):
     MALE = "male", _("Male")
@@ -22,9 +24,14 @@ class Customer(AbstractUser, PermissionsMixin):
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
     username = models.CharField(max_length=30, null=True, blank=True)
-    phone = models.CharField(max_length=10, default='', null=True,  blank=True)
+    phone = PhoneNumberField(unique = True, null = True, blank = True,
+                             validators=[
+                                 validators.RegexValidator(
+                                     regex = r"^\+?1?\d{8,15}$"
+                                     )
+                                 ])
     email = models.EmailField(validators=[validators.EmailValidator()],
-                                                            unique=True)
+                                                unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
     gender = models.CharField(_('Gender'), max_length=10, choices=Gender.choices,
                                 default=_('Male'), null=True)
@@ -79,7 +86,7 @@ class Profile(models.Model):
         verbose_name_plural = _('Profiles')
 
     def __str__(self):
-        return f' {self.profile_id}'
+        return f' {self.profile_id} {self.user.username}'
     
     def profile_exists(self, email):
         profile = Profile.objects.filter(email=email)

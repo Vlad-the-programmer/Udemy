@@ -24,20 +24,8 @@ def create_profile(sender, instance, created, **kwargs):
         
 @receiver(pre_save, sender=Customer)
 def update_profile(sender, instance, **kwargs):
-    # print(instance)
     profile = instance
     if profile.customer_id is not None:
-        # Customer.objects.update(
-        #     username=user.username,
-        #     email=user.email,
-        #     password=user.password,
-        #     first_name=user.first_name,
-        #     last_name=user.last_name,
-        #     phone=user.phone,
-        #     description=user.description,
-        #     featured_img = user.featured_img,
-        #     gender=user.gender
-        # )
         Profile.objects.update(user=profile)
         
 
@@ -48,5 +36,4 @@ def delete_profile(sender, instance, **kwargs):
     if user and customer:
         # profile.delete()
         customer.delete()
-    print('Not exists...')
     
