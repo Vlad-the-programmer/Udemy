@@ -77,7 +77,7 @@ class UpdateProductView(LoginRequiredMixin,
     template_name = 'products/product_update.html'
     form_class = ProductCreateForm
     success_url = reverse_lazy('products:products')
-    context_object_name = 'product'
+    # context_object_name = 'product'
     
     def post(self, request, *args, **kwargs):
         form = ProductCreateForm(instance=self.get_object())

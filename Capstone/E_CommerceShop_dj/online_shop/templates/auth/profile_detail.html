@@ -15,17 +15,22 @@
                 <h5 class="card-title">{{ profile.user.username }} </h5>
                 <p class="card-text">{% if profile.user.description %}{{ profile.user.description }}{% else %} {% endif %}</p>
                 <li>{{ profile.user.first_name }}</li>
-                {% comment %} <a href="{% url 'products:update-profile' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
-                <a href="{% url 'products:delete-profile' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> {% endcomment %}
+                 <a href="{% url 'user-auth:profile-update' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+                <a href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> 
 
             </div>
-            {% comment %} <a href="{% url 'products:product-detail' pk=product.product_id %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a> {% endcomment %}
-
+            
         </div>
+
+    {% include 'partials/product_list.html' with products=products %}
+        
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
             <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=user.customer_id %}">Update Profile</a>
             <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=user.customer_id %}">Delete Profile</a>
-
+            {% for order in orders %}
+                <a class="dropdown-item" href="{% url 'orders:orders' slug=order.slug %}">Orders </a>
+                <a class="dropdown-item" href="{% url 'orders:profile-detail' slug=order.slug %}"> Deatil order</a>
+            {% endfor %}
         </button>
 
 {% endblock %}

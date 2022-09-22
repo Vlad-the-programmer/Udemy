@@ -33,7 +33,7 @@ class ProfileUpdateForm(UserChangeForm):
         error_class = 'error'
         
     def save(self, commit=True):
-        customer = super().save(commit=False)
+        customer = super(ProfileUpdateForm, self).save(commit=False)
         
         email = self.cleaned_data.get('email')
         customer.email = email.lower()
@@ -42,6 +42,6 @@ class ProfileUpdateForm(UserChangeForm):
         if commit:
             if customer.exists():
                 super(ProfileUpdateForm, self).save()
-                return customer
+        return customer
             
             

@@ -1,0 +1,23 @@
+
+
+<div class='container'>
+
+    {% for order in orders %}
+        <div class="card d-inline-block" style="width: 18rem;">
+            <img class="card-img-top" src="{{ product.image.url }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ order.product.name }} </h5>
+                <p class="card-text">{{ order.product.price }}</p>
+                <li>{{ order.address }}</li>
+                <li>{{ order.price }}</li>
+                <li>{{ order.quantity }}</li>
+{% comment %} 
+                <a href="{% url 'orders:update-order' slug=order.slug %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+                <a href="{% url 'orders:delete-order' slug=order.slug %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> {% endcomment %}
+
+            </div>
+            {% comment %} <a href="{% url 'orders:order-detail' slug=order.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a> {% endcomment %}
+
+        </div>
+    {% endfor %}
+</div>

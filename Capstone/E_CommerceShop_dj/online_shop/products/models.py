@@ -17,7 +17,10 @@ class Product(models.Model):
     name = models.CharField(max_length=30, null=False, blank=False)
     slug = models.SlugField(null=True, blank=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer =  models.ForeignKey(Customer, 
+                                on_delete=models.CASCADE,
+                                related_name="owner",
+                                null=True)
     price = models.DecimalField(_('A price'), default=0, max_digits=4,
                                 decimal_places=2)
     image = models.ImageField(verbose_name=_('An image of the product'),

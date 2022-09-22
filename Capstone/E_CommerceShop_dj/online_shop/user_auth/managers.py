@@ -12,7 +12,7 @@ class UserManager(BaseUserManager):
         except ValidationError:
             raise ValueError(_("You must provide a valid email address"))
         
-    def create_user(self, email, password, first_name, description, gender, featured_img, username, last_name, phone, **extra_fields):
+    def create_user(self, email=None, password=None, first_name=None, description=None, gender=None, featured_img=None, username=None, last_name=None, phone=None, **extra_fields):
         if not email:
             raise ValueError("User must have an email")
         if not password:
@@ -40,7 +40,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
         
-    def create_superuser(self, email, password, first_name, description, gender, featured_img, username, last_name, phone, **extra_fields):
+    def create_superuser(self, email, password, **extra_fields):
         
 
         extra_fields.setdefault("is_staff", True)
@@ -64,8 +64,16 @@ class UserManager(BaseUserManager):
             self.email_validator(email)
             
         user = self.create_user(
-            email, password, first_name, description, gender, featured_img,
-            username, last_name, phone, **extra_fields)
+            email, 
+            password,
+            # extra_fields.get(first_name), 
+            # extra_fields.get(description), 
+            # extra_fields.get(gender), 
+            # extra_fields.get(featured_img),
+            # extra_fields.get(username), 
+            # extra_fields.get(last_name),
+            # extra_fields.get(phone),
+            **extra_fields)
         
         user.save(using=self._db)
         return user

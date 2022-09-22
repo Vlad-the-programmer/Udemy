@@ -22,11 +22,11 @@ def create_profile(sender, instance, created, **kwargs):
             
         )
         
-@receiver(pre_save, sender=Customer)
-def update_profile(sender, instance, **kwargs):
-    profile = instance
-    if profile.customer_id is not None:
-        Profile.objects.update(user=profile)
+# @receiver(pre_save, sender=Customer)
+# def update_profile(sender, instance, **kwargs):
+#     customer = instance
+#     if customer.customer_id is not None:
+#         Profile.objects.update(user=customer)
         
 
 @receiver(post_delete, sender=Customer)

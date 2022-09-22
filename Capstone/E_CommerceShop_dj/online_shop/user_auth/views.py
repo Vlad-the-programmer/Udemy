@@ -9,12 +9,13 @@ from django.contrib import messages
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views import generic
 from django.views.generic.detail import DetailView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Customer, Profile
 from .forms import SignUpForm, LoginForm, ProfileUpdateForm
-from django.http.response import Http404
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
+from orders.models import Order
+from products.models import Product
 
 class SignUpView(FormView):
     form_class = SignUpForm
@@ -119,14 +120,16 @@ class ProfileDetailView(LoginRequiredMixin,
     template_name = 'auth/profile_detail.html'
     
     def get_object(self):
-        profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+        profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
         return profile
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        context['profile'] = self.get_object()
+        user = self.request.user
         
+        context['user'] = user
+        context['orders'] = Order.objects.filter(customer=user).order_by('-date_created')
+        context['products'] = Product.objects.filter(customer=user).order_by('-date_created')
         return context
     
    
@@ -163,13 +166,13 @@ class UpdateProfileView(LoginRequiredMixin,
         return render(request, self.template_name, self.get_context_data())
         
     def get_object(self):
-        profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+        profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
         return profile.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = ProfileUpdateForm(instance=self.get_object())
-        context['user'] = self.request.user
+        # context['user'] = self.request.user
         return context
     
 
@@ -195,6 +198,6 @@ class DeleteProfileView(LoginRequiredMixin,
             return redirect(reverse_lazy('user-auth:signup'))
 
         def get_object(self):
-            profile = Profile.objects.filter(user__customer_id=self.kwargs['pk']).first()
+            profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
             return profile.user
        

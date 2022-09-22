@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.core import validators
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -15,12 +17,15 @@ class Gender(models.TextChoices):
     
 class Customer(AbstractUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     
     objects = UserManager()
     
-    # id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
-    customer_id = models.AutoField(primary_key=True)
+    customer_id = models.UUIDField(default=uuid.uuid4,
+                                   unique=True,
+                                   primary_key=True, 
+                                   editable=False)
+    # customer_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
     username = models.CharField(max_length=30, null=True, blank=True)
@@ -30,11 +35,15 @@ class Customer(AbstractUser, PermissionsMixin):
                                      regex = r"^\+?1?\d{8,15}$"
                                      )
                                  ])
-    email = models.EmailField(validators=[validators.EmailValidator()],
-                                                unique=True)
+    email = models.EmailField(validators=[
+                                            validators.EmailValidator()
+                                        ], unique=True)
     description  = models.TextField(max_length=1000,blank=True, null=True)
-    gender = models.CharField(_('Gender'), max_length=10, choices=Gender.choices,
-                                default=_('Male'), null=True)
+    gender = models.CharField(_('Gender'),
+                              max_length=10,
+                              choices=Gender.choices,
+                              default=_('Male'),
+                              null=True)
     
     featured_img = models.ImageField(verbose_name=_('A profile image'),
                                      upload_to='profiles', 
@@ -73,14 +82,19 @@ class Customer(AbstractUser, PermissionsMixin):
         return self.username
 
 class Profile(models.Model):
-    # USERNAME_FIELD = 'email'
     
-    profile_id = models.AutoField(primary_key=True)
+    # profile_id = models.AutoField(primary_key=True)
+    profile_id = models.UUIDField(default=uuid.uuid4,
+                                   unique=True,
+                                   primary_key=True, 
+                                   editable=False)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
-    user = models.ForeignKey(Customer, on_delete=models.CASCADE,
-                                    related_name="customer", null=True)
-
+    user = models.ForeignKey(Customer, 
+                                on_delete=models.CASCADE,
+                                related_name="customer",
+                                null=True)
+    
     class Meta:
         verbose_name = _('Profile')
         verbose_name_plural = _('Profiles')
