@@ -25,11 +25,10 @@
     {% include 'partials/product_list.html' with products=products %}
         
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=user.customer_id %}">Update Profile</a>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=user.customer_id %}">Delete Profile</a>
+            
+            <a class="dropdown-item" href="{% url 'orders:orders' %}">Orders </a>
             {% for order in orders %}
-                <a class="dropdown-item" href="{% url 'orders:orders' slug=order.slug %}">Orders </a>
-                <a class="dropdown-item" href="{% url 'orders:profile-detail' slug=order.slug %}"> Deatil order</a>
+                <a class="dropdown-item" href="{% url 'orders:order-detail' slug=order.slug %}"> Deatil order</a>
             {% endfor %}
         </button>
 

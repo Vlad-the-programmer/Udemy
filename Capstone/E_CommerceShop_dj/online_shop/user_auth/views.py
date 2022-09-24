@@ -120,7 +120,7 @@ class ProfileDetailView(LoginRequiredMixin,
     template_name = 'auth/profile_detail.html'
     
     def get_object(self):
-        profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
+        profile = Profile.objects.get(profile_id=self.kwargs['pk'])
         return profile
     
     def get_context_data(self, **kwargs):
@@ -128,6 +128,7 @@ class ProfileDetailView(LoginRequiredMixin,
         user = self.request.user
         
         context['user'] = user
+        # context['profile'] = self.get_object()
         context['orders'] = Order.objects.filter(customer=user).order_by('-date_created')
         context['products'] = Product.objects.filter(customer=user).order_by('-date_created')
         return context
@@ -139,11 +140,12 @@ class UpdateProfileView(LoginRequiredMixin,
     
     template_name = 'auth/profile_update.html'
     form_class = ProfileUpdateForm
-    context_object_name = 'customer'
+    context_object_name = 'profile'
     
     def get_success_url(self):
+            profile = self.get_object()
             success_url = reverse_lazy('user-auth:profile-detail', 
-                                   kwargs={'pk': self.request.user.customer_id})
+                                   kwargs={'pk': profile.profile_id})
             return success_url
         
     @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -166,8 +168,8 @@ class UpdateProfileView(LoginRequiredMixin,
         return render(request, self.template_name, self.get_context_data())
         
     def get_object(self):
-        profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
-        return profile.user
+        profile = Profile.objects.get(profile_id=self.kwargs['pk'])
+        return profile
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -183,8 +185,9 @@ class DeleteProfileView(LoginRequiredMixin,
         template_name = 'auth/profile_confirm_delete.html'
         
         def get_success_url(self):
+            profile = self.get_object()
             success_url = reverse_lazy('user-auth:profile-detail', 
-                                   kwargs={'pk': self.request.user.customer_id})
+                                   kwargs={'pk': profile.profile_id})
             return success_url
         
         @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -198,6 +201,6 @@ class DeleteProfileView(LoginRequiredMixin,
             return redirect(reverse_lazy('user-auth:signup'))
 
         def get_object(self):
-            profile = Profile.objects.get(user__customer_id=self.kwargs['pk'])
+            profile = Profile.objects.get(profile_id=self.kwargs['pk'])
             return profile.user
        

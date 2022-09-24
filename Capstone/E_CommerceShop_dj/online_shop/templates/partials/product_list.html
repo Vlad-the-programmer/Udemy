@@ -13,7 +13,7 @@
                 <a href="{% url 'products:delete-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a>
 
             </div>
-            <a href="{% url 'products:product-detail' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
+            <a href="{% url 'products:detail-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
 
         </div>
     {% endfor %}

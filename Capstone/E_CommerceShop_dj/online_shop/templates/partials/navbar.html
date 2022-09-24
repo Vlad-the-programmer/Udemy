@@ -18,11 +18,11 @@
           </a>
         {% if user.is_authenticated %}
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=user.customer_id %}">Profile</a>
             <a class="dropdown-item" href="{% url 'products:add-product' %}">Add a product</a>
+            <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-update' pk=user.customer_id  %}">Update Profile</a>
-            <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=user.customer_id %}">Delete Profile</a>
+            {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-update' pk=profile.profile_id  %}">Update Profile</a> {% endcomment %}
+            {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}">Delete Profile</a> {% endcomment %}
 
           </div> 
           {% endif %}
