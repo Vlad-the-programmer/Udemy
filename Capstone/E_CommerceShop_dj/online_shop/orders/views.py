@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import (CreateView,
                                        FormView,
                                        UpdateView,
@@ -12,15 +12,22 @@ from django.urls import reverse_lazy
 
 from .models import Order
 from .forms import OrderCreateForm, OrderUpdateForm
-
+from user_auth.models import Profile
 
 class OrderListView(ListView):
     model = Order
     context_object_name = 'orders'
     
     def get_object(self):
-        order = Order.objects.filter(customer=self.request.user).order_by("-date_created")
-        return order
+        orders = Order.objects.filter(customer=self.request.user).order_by("-date_created")
+        return orders
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orders = self.get_object()
+        context["products"] = [order.products.all() for order in orders]
+        return context
+    
     
 class OrderCreateView(LoginRequiredMixin,
                       CreateView):
@@ -36,7 +43,7 @@ class OrderCreateView(LoginRequiredMixin,
         order.customer = self.request.user
         order.save()
         
-        messages.success(request, 'The order was successfully created!')
+        messages.success(self.request, 'The order was successfully created!')
         return redirect(self.success_url)
            
 class OrderUpdateView(LoginRequiredMixin,
@@ -78,7 +85,9 @@ class OrderDetailView(LoginRequiredMixin,
             for product in order.products.all():
                 products.append(product)
         context["orders"] = orders
+        context["profile"] =  Profile.objects.filter(user=self.request.user)
         context["products"] = products
+        
         return context
     
     

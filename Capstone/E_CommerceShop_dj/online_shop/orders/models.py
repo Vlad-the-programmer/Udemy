@@ -46,7 +46,7 @@ class Order(models.Model):
 
     @property
     def set_default_slug(self):
-        return slugify(f'{self.customer.first_name} - {self.date_created} - {self.order_id}')
+        return slugify(f'{self.date_created} - {self.order_id}')
     
     # def exists(self):
     #     order = Order.objects.filter()

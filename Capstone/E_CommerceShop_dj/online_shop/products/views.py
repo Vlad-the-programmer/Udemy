@@ -5,8 +5,6 @@ from django.utils.text import slugify
 from django.views import View
 from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView
 from .serializers import ProductSerializer
-from .models import Product
-from .forms import ProductCreateForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, logout_then_login
 from django.contrib.auth import authenticate, login
@@ -18,6 +16,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views import generic
 
+from .models import Product
+from user_auth.models import Profile
+
+from .forms import ProductCreateForm
 from .filters import ProductsFilter
 
 class ProductRetrieveListApi(
@@ -27,21 +29,24 @@ class ProductRetrieveListApi(
     queryset = Product.get_all_products()
     serializer_class = ProductSerializer
     
+    
 
     def get(self, request, *args, **kwargs):
-        self.request = request
         products = self.get_queryset()
         
+        context = {}
         product_filter = ProductsFilter(request.GET, queryset=self.get_queryset())
         products = product_filter.qs
-        
-        context = {'products': products, 'filter': product_filter}
+        user = self.request.user
+        context['user'] = user
+        context['profile'] = Profile.objects.filter(user=user).first()
+        context['products'] = products
+        context['filter'] = product_filter
         return render(request, 'products/index.html', context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
 
 
 class CreateProductView(

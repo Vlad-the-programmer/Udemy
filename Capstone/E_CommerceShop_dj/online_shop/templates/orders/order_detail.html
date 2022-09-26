@@ -24,7 +24,7 @@
         </div>
 
     
-        {% include 'partials/product_list.html' with products=products %}
+        {% include 'partials/product_list.html' with products=products orders=orders %}
         
         {% comment %} <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
             <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=user.customer_id %}">Update Profile</a>

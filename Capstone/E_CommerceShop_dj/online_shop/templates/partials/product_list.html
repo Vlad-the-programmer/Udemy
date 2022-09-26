@@ -1,20 +1,28 @@
-
+<br>
+<br>
 <div class='container'>
 
     {% for product in products %}
-        <div class="card d-inline-block" style="width: 18rem;">
-            <img class="card-img-top" src="{{ product.image.url }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ product.name }} </h5>
-                <p class="card-text">{{ product.description| slice:"100" }}</p>
-                <li>{{ product.price }}</li>
-                {% comment %} {{product.slug}} {% endcomment %}
-                <a href="{% url 'products:update-product' slug=product.slug %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
-                <a href="{% url 'products:delete-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a>
-
-            </div>
-            <a href="{% url 'products:detail-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
-
+    
+    <div class="card d-inline-block" style="width: 18rem;">
+        <img class="card-img-top" src="{{ product.image.url }}">
+        <div class="card-body">
+            <h5 class="card-title">{{ product.name }} </h5>
+            <p class="card-text">{{ product.description| slice:"100" }}</p>
+            <li>{{ product.price }}</li>
+            <a href="{% url 'products:update-product' slug=product.slug %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+            <a href="{% url 'products:delete-product' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a>
+            
         </div>
+        <a href="{% url 'products:product-detail' slug=product.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a>
+        
+    </div>
+   
+    
     {% endfor %}
+    {% comment %} {% for order in orders %}
+        <a href="{% url 'orders:order-detail' slug=order.slug %}" class="btn btn-danger my-sm-2 mx-lg-5">See the order details</a>
+    {% endfor %} {% endcomment %}
+   
+
 </div>

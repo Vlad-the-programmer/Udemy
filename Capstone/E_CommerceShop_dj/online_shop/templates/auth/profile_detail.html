@@ -9,8 +9,8 @@
 
 <div class='container'>
     
-        <div class="card d-inline-block" style="width: 18rem;">
-            <img class="card-img-top" src="{{ customer.featured_image.url }}">
+        <div class="card d-inline-block" style="width: 10rem;height:10px;">
+            <img class="card-img-top" src="{{ profile.user.featured_img.url }}">
             <div class="card-body">
                 <h5 class="card-title">{{ profile.user.username }} </h5>
                 <p class="card-text">{% if profile.user.description %}{{ profile.user.description }}{% else %} {% endif %}</p>
@@ -21,7 +21,7 @@
             </div>
             
         </div>
-
+<br>
     {% include 'partials/product_list.html' with products=products %}
         
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
@@ -29,7 +29,7 @@
             <a class="dropdown-item" href="{% url 'orders:orders' %}">Orders </a>
             {% for order in orders %}
                 <a class="dropdown-item" href="{% url 'orders:order-detail' slug=order.slug %}"> Deatil order</a>
-            {% endfor %}
+                {% endfor %}
         </button>
 
 {% endblock %}

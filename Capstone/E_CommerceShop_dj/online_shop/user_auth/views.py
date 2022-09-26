@@ -128,7 +128,7 @@ class ProfileDetailView(LoginRequiredMixin,
         user = self.request.user
         
         context['user'] = user
-        # context['profile'] = self.get_object()
+        context['profile'] = self.get_object()
         context['orders'] = Order.objects.filter(customer=user).order_by('-date_created')
         context['products'] = Product.objects.filter(customer=user).order_by('-date_created')
         return context
@@ -181,7 +181,7 @@ class UpdateProfileView(LoginRequiredMixin,
 class DeleteProfileView(LoginRequiredMixin, 
                         DeleteView):
 
-        context_object_name = 'customer'
+        context_object_name = 'profile'
         template_name = 'auth/profile_confirm_delete.html'
         
         def get_success_url(self):
@@ -202,5 +202,5 @@ class DeleteProfileView(LoginRequiredMixin,
 
         def get_object(self):
             profile = Profile.objects.get(profile_id=self.kwargs['pk'])
-            return profile.user
+            return profile
        

@@ -22,17 +22,8 @@
 </div>
 
 {% include 'partials/product_list.html' with products=products%}
+{% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a> {% endcomment %}
 
-<div class='container'>
 
-    <form method='post'>
-        {% csrf_token %}
-        <div class='container'>
-            {% for error in form.errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-        {{form.as_p}}
-    </form>
 {% endblock %}
-</div>
+

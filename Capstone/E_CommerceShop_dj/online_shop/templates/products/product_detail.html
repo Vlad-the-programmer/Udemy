@@ -14,7 +14,7 @@
         <strong>Pice: {{ product.price }}$</strong>
         
     </div>
-    <p class="card-text">Created: {{ product.date_created|date:"SHORT_DATE_FORMAT" }} by {{ product.owner.username }}</p>
+    <p class="card-text">Created: {{ product.date_created|date:"SHORT_DATE_FORMAT" }} by {{ product.customer.username }}</p>
 
 </div>
 {% endblock %}
