@@ -13,9 +13,8 @@ class Product(models.Model):
     product_id = models.UUIDField(_("A Product id"), primary_key=True, default=uuid.uuid4,
                                   editable=False)
     
-    # product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False)
-    slug = models.SlugField(null=True, blank=True)
+    slug = models.SlugField(null=True, blank=True, max_length=100)
     description  = models.TextField(max_length=1000,blank=True, null=True)
     customer =  models.ForeignKey(Customer, 
                                 on_delete=models.CASCADE,
@@ -27,13 +26,14 @@ class Product(models.Model):
                               upload_to="products/")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True,
                                  blank=True)
+    digital = models.BooleanField(default=False,null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     
     def get_absolute_url(self):
         return '/products/'
 
     def __str__(self):
-        return f'{self.product_id} {self.name} {self.price}'
+        return f'{self.name} {self.price}$'
 
     @staticmethod
     def get_products_by_id(ids):
@@ -46,6 +46,14 @@ class Product(models.Model):
     @property
     def set_default_slug(self):
         return slugify(f'{self.category or "products"}-{self.name}-{self.product_id}')
+
+    @property
+    def imageURL(self):
+        try:
+            url = self.image.url
+        except:
+            url = ''
+        return url
 
     @staticmethod
     def get_all_products_by_category_id(category_id):
@@ -63,7 +71,7 @@ class Category(models.Model):
     category_id = models.UUIDField("A Category id", primary_key=True, default=uuid.uuid4,
                                    editable=False)
     # category_id = models.AutoField(primary_key=True)
-    slug = models.SlugField(unique=True, null=True, blank=True)
+    slug = models.SlugField(unique=True, null=True, blank=True, max_length=100)
     name = models.CharField(max_length=30, null=False, blank=False)
     
     class Meta:

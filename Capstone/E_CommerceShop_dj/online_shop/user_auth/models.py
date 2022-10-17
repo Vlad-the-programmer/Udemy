@@ -25,7 +25,6 @@ class Customer(AbstractUser, PermissionsMixin):
                                    unique=True,
                                    primary_key=True, 
                                    editable=False)
-    # customer_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
     username = models.CharField(max_length=30, null=True, blank=True)
@@ -56,11 +55,18 @@ class Customer(AbstractUser, PermissionsMixin):
     class Meta:
         verbose_name = _('Customer')
         verbose_name_plural = _('Customers')
-        # unique_together = ['email']
 
     def __str__(self):
         return f'{self.email} {self.username} {self.customer_id}'
     
+    @property
+    def imageURL(self):
+        try:
+            url = self.featured_img.url
+        except:
+            url = ''
+        return 
+  
     @staticmethod
     def get_customer_by_email(email):
         try:
@@ -83,7 +89,6 @@ class Customer(AbstractUser, PermissionsMixin):
 
 class Profile(models.Model):
     
-    # profile_id = models.AutoField(primary_key=True)
     profile_id = models.UUIDField(default=uuid.uuid4,
                                    unique=True,
                                    primary_key=True, 

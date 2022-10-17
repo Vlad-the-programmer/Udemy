@@ -2,8 +2,6 @@
 
 {% block title %} Home page {% endblock %}
 
-{% block messages %}
-{% endblock %}
 
 {% block content %}
 <div class='container' id='formToCollapse'>
@@ -21,9 +19,10 @@
   </button>
 </div>
 
-{% include 'partials/product_list.html' with products=products%}
+{% include 'partials/product_list.html' with items=products %}
 {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a> {% endcomment %}
 
 
 {% endblock %}
+
 

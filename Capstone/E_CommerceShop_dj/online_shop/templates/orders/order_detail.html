@@ -2,8 +2,6 @@
 
 {% block title %} Home page {% endblock %}
 
-{% block messages %}
-{% endblock %}
 
 {% block content %}
 
@@ -24,7 +22,7 @@
         </div>
 
     
-        {% include 'partials/product_list.html' with products=products orders=orders %}
+        {% include 'partials/product_list.html' with  products=order.orderitem_set.all %}
         
         {% comment %} <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
             <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=user.customer_id %}">Update Profile</a>

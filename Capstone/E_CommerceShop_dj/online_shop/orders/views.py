@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect
 from django.views.generic.edit import (CreateView,
                                        FormView,
@@ -6,36 +7,65 @@ from django.views.generic.edit import (CreateView,
                                        )
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.contrib import messages
 from django.urls import reverse_lazy
 
-from .models import Order
-from .forms import OrderCreateForm, OrderUpdateForm
 from user_auth.models import Profile
+from products.models import Product
+from .forms import OrderCreateForm, OrderUpdateForm
+from .models import Order, OrderItem
+from .utils import cartData, cookieCart, guestOrder
 
-class OrderListView(ListView):
-    model = Order
-    context_object_name = 'orders'
-    
-    def get_object(self):
-        orders = Order.objects.filter(customer=self.request.user).order_by("-date_created")
-        return orders
+
+class CartView(TemplateView):
+    template_name = 'auth/profile_detail.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        orders = self.get_object()
-        context["products"] = [order.products.all() for order in orders]
+        customer = self.request.user
+        try:
+            data = cartData(self.request)
+            # cartItems = data['cartItems']
+            order = data['order']
+            # items = data['items']
+        except:
+            order = None
+            # items = None
+            # cartItems = 0
+        context['order'] = order
         return context
+
+
+class CookieCartView(TemplateView):
+    template_name = 'orders/cookie-cart.html'
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        try:
+            data = cartData(self.request)
+            # cartItems = data['cartItems']
+            order = data['order']
+            # items = data['items']
+        except:
+            order = None
+            items = None
+            cartItems = 0
+            
+        context['order'] = order
+        # context['items'] = items
+        # context['cartItems'] = cartItems
+        return context
     
 class OrderCreateView(LoginRequiredMixin,
                       CreateView):
     model = Order
-    form_class = OrderCreateForm
     context_object_name = 'order'
     template_name = 'orders/order_create.html'
-    success_url = reverse_lazy("orders:orders")
+    success_url = reverse_lazy("products:products")
 
     def form_valid(self, form):
         order = form.save(commit=False)
@@ -46,27 +76,34 @@ class OrderCreateView(LoginRequiredMixin,
         messages.success(self.request, 'The order was successfully created!')
         return redirect(self.success_url)
            
-class OrderUpdateView(LoginRequiredMixin,
-                      UpdateView):
-    form_class = OrderUpdateForm
-    template_name = 'orders/order_list.html'
-    
-    def form_valid(self, form):
-        form.save()
-        messages.add_message(self.request, messages.SUCCESS, message="Order updated!")
-        return super().form_valid(form)
-    
-    def get_object(self):
-        order = Order.objects.get(slug=self.kwargs['slug'])
-        return order
-    
-    def get_success_url(self):
-        order = self.get_object()
+
+def updateItem(request):
+    data = json.loads(request.body)
+    productId = data['productId']
+    action = data['action']
+    print('Action:', action)
+    print('Product:', productId)
+
+    customer = request.user
+    product = Product.objects.get(product_id=productId)
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+
+    orderItem, item_created = OrderItem.objects.get_or_create(order=order, product=product)
+
+    if action == 'add':
+        orderItem.quantity += 1
         
-        success_url = reverse_lazy("orders:order-detail", 
-                                        kwargs={"slug": order.slug})
-        return success_url
-    
+    elif action == 'remove':
+        orderItem.quantity -= 1
+
+    orderItem.save()
+
+    if orderItem.quantity <= 0:
+        orderItem.delete()
+
+    return JsonResponse('Item was added', safe=False)
+
+
 class OrderDetailView(LoginRequiredMixin,
                       DetailView):
     
@@ -74,20 +111,13 @@ class OrderDetailView(LoginRequiredMixin,
     context_object_name = 'order'
     
     def get_object(self):
-        order = Order.objects.get(slug=self.kwargs['slug'])
+        customer = self.request.user
+        order = Order.objects.get(customer=customer, transaction_id=self.kwargs["transaction_id"])
         return order
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         orders = Order.objects.filter(customer=self.request.user)
-        products = []
-        for order in orders:
-            for product in order.products.all():
-                products.append(product)
-        context["orders"] = orders
-        context["profile"] =  Profile.objects.filter(user=self.request.user)
-        context["products"] = products
-        
         return context
     
     
@@ -96,6 +126,7 @@ class OrderDeleteView(LoginRequiredMixin,
     
     context_object_name = 'order'
     success_url = reverse_lazy("orders:orders")
+    template_name = "orders/order_confirm_delete.html"
         
     def get_object(self):
         order = Order.objects.get(slug=self.kwargs['slug'])
@@ -110,8 +141,45 @@ class OrderDeleteView(LoginRequiredMixin,
             messages.add_message(request, messages.ERROR, "The order does not exist!")
         
         return super().delete(request)
+        
             
-        
+def checkout(request):
+    data = cartData(request)
     
-        
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
+
+    context = {'items':items, 'order':order, 'cartItems':cartItems}
+    return render(request, 'store/checkout.html', context)
+
+
+def processOrder(request):
+    transaction_id = datetime.datetime.now().timestamp()
+    data = json.loads(request.body)
+
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    else:
+        customer, order = guestOrder(request, data)
+
+    total = float(data['form']['total'])
+    order.transaction_id = transaction_id
+
+    if total == order.get_cart_total:
+        order.complete = True
+    order.save()
+
+    if order.shipping == True:
+        ShippingAddress.objects.create(
+        customer=customer,
+        order=order,
+        address=data['shipping']['address'],
+        city=data['shipping']['city'],
+        state=data['shipping']['state'],
+        zipcode=data['shipping']['zipcode'],
+        )
+
+    return JsonResponse('Payment submitted..', safe=False)        
         

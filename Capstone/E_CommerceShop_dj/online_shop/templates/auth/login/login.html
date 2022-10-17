@@ -4,18 +4,10 @@
 
 {% block title %}Login Page{% endblock title %}
 
-{% block styling_links %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-{% endblock %}
-
 
 {% block content %}
     <form method="POST" class='container justify-content-center'>
         {% csrf_token %}
-            {% comment %} {% for field in form %}
-                    <p>{{ field.label }}</p>
-                    <p>{{ field }}</p>
-            {% endfor %} {% endcomment %}
             {{ form|crispy }}
 
         {% for error in form.errors %}
@@ -27,7 +19,3 @@
 
     <p>Don't have an account?<a href="{% url 'user-auth:register' %}"> SignUp</a></p>
 {% endblock %}
-
-{% block scripts %}
-    
-{% endblock scripts %}

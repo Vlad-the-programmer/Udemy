@@ -22,31 +22,21 @@ from user_auth.models import Profile
 from .forms import ProductCreateForm
 from .filters import ProductsFilter
 
-class ProductRetrieveListApi(
-        LoginRequiredMixin,
-        ListAPIView,
-        View):
+class ProductRetrieveListApi(ListAPIView,
+                            View):
     queryset = Product.get_all_products()
     serializer_class = ProductSerializer
     
     
-
     def get(self, request, *args, **kwargs):
         products = self.get_queryset()
         
         context = {}
         product_filter = ProductsFilter(request.GET, queryset=self.get_queryset())
         products = product_filter.qs
-        user = self.request.user
-        context['user'] = user
-        context['profile'] = Profile.objects.filter(user=user).first()
         context['products'] = products
         context['filter'] = product_filter
         return render(request, 'products/index.html', context)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
 
 
 class CreateProductView(
@@ -61,7 +51,7 @@ class CreateProductView(
         form = ProductCreateForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             product = form.save(commit=False)
-            product.owner = request.user
+            product.customer = request.user
             product.slug = product.set_default_slug
             product.save()
             
@@ -125,8 +115,7 @@ class DeleteProductView(LoginRequiredMixin,
             return super().delete(request, *args, **kwargs)
 
 
-class DetailProductView(LoginRequiredMixin, 
-                        DetailView):
+class DetailProductView(DetailView):
     context_object_name = 'product'
     
     def get_object(self):

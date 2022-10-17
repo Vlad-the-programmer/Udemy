@@ -3,23 +3,16 @@ from django.forms import ModelForm
 from django.core.validators import MaxLengthValidator
 from django.db import models
 
-from .models import Order
+from .models import OrderItem, Order
 
 class OrderCreateForm(ModelForm):
-    phone = forms.CharField(max_length=15, 
-                            validators=[
-                                            MaxLengthValidator(limit_value=15)
-                            ])
-    
     class Meta:
-        model = Order
-        fields = ['quantity', 'address']
+        model = OrderItem
+        fields = ['quantity']
     
             
     def save(self, commit=True):
         order = super(OrderCreateForm, self).save(commit=False)
-        
-        order.check_quantity()
         
         products_prices = [product.price for product in order.products.all()]
         print(products_prices)
@@ -48,20 +41,16 @@ class OrderCreateForm(ModelForm):
         return order
         
 class OrderUpdateForm(ModelForm):
-        phone = forms.CharField(max_length=15, 
-                                validators=[
-                                                MaxLengthValidator(limit_value=15)
-                                ])
         
         class Meta:
             model = Order
-            fields = ['quantity', 'address']
+            fields = ['complete', 'transaction_id']
             
         def save(self, commit=True):
             order = super().save(commit=False)
             order.check_quantity()
             
             if order.phone:
-                order.customer.phone = self.phone
+                order.customer.phone = order.phone
             # order.save(commit)
-            return super(OrderCreateForm, self).save(commit)
+            return super(OrderUpdateForm, self).save(commit)

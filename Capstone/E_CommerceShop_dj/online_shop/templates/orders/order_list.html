@@ -1,5 +1,9 @@
 
+{% extends '../base.html' %}
 
 
 
-{% include 'partials/product_list.html' with products=products %}
+{% block content %}
+
+    {% include 'partials/orders_list.html' with orders=items %}
+{% endblock %}

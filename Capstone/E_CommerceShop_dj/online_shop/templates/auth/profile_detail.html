@@ -2,34 +2,35 @@
 
 {% block title %} Home page {% endblock %}
 
-{% block messages %}
-{% endblock %}
-
 {% block content %}
-
-<div class='container'>
-    
-        <div class="card d-inline-block" style="width: 10rem;height:10px;">
-            <img class="card-img-top" src="{{ profile.user.featured_img.url }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ profile.user.username }} </h5>
-                <p class="card-text">{% if profile.user.description %}{{ profile.user.description }}{% else %} {% endif %}</p>
-                <li>{{ profile.user.first_name }}</li>
-                 <a href="{% url 'user-auth:profile-update' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
-                <a href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> 
-
-            </div>
-            
-        </div>
-<br>
-    {% include 'partials/product_list.html' with products=products %}
+    {% if user.is_authenticated %}
+    <div class='container'>
         
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            
-            <a class="dropdown-item" href="{% url 'orders:orders' %}">Orders </a>
-            {% for order in orders %}
-                <a class="dropdown-item" href="{% url 'orders:order-detail' slug=order.slug %}"> Deatil order</a>
+            <div class="card d-inline-block" style="width: 10rem;height:10px;">
+                <img class="card-img-top" src="{{ profile.user.imageURL }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.user.username }} </h5>
+                    <p class="card-text">{% if profile.user.description %}{{ profile.user.description }}{% else %} {% endif %}</p>
+                    <li>{{ profile.user.first_name }}</li>
+                    <a href="{% url 'user-auth:profile-update' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+                    <a href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> 
+
+                </div>
+                
+            </div>
+
+        {% include 'store/cart.html' with order=order items=items cartItems=cartItems %}
+        
+            {% comment %} <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                
+                <a class="dropdown-item" href="{% url 'orders:cart' %}">Cart </a>
+                {% for order in orders %}
+                    <a class="dropdown-item" href="{% url 'orders:order-detail' slug=order.slug %}"> {{order.slug}}</a>
                 {% endfor %}
-        </button>
+            </button> {% endcomment %}
+        {% else%}
+
+    {% endif %}
+    
 
 {% endblock %}

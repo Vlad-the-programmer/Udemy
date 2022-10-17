@@ -74,6 +74,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'orders.context_processors.base_template_variables_context_processor',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -149,7 +150,7 @@ AUTH_USER_MODEL = 'user_auth.Customer'
 LOGIN_REDIRECT_URL = reverse_lazy('products:products')
 LOGIN_URL = reverse_lazy('user-auth:login')
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
-LOGOUT_REDIRECT_URL = reverse_lazy('user-auth:login')
+LOGOUT_REDIRECT_URL = reverse_lazy('products:products')
 # ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('products')
 ACCOUNT_FORMS = {

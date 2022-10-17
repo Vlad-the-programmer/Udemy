@@ -1,6 +1,7 @@
 
+{% load static %}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Navbar</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -12,11 +13,11 @@
           <a class="nav-link" href="{% url 'products:products' %}">Home <span class="sr-only">(current)</span></a>
         </li>
         
+        {% if user.is_authenticated %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             See more
           </a>
-        {% if user.is_authenticated %}
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'products:add-product' %}">Add a product</a>
             <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a>
@@ -25,26 +26,40 @@
             {% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=profile.profile_id %}">Delete Profile</a> {% endcomment %}
 
           </div> 
-          {% endif %}
         </li>
-  
+        {% endif %}
+        
       </ul>
-
+      
     </div>
     {% if user.is_authenticated %}
+      <p id="cart-total">{{cartItems}}</p>
+      <a href="{% url 'orders:cart' %}" class="mr-4">
+        <img  id="cart-icon" src="{% static 'images/cart.png' %}">
+      </a> 
+      {% else %} 
+         <a href="{% url 'orders:cookie-cart' %}" class="mr-4">
+            <img  id="cart-icon" src="{% static 'images/cart.png' %}">
+          </a> 
+      {% endif %}  
+    {% if user.is_authenticated %}
     <h6>Hello, {{ user.username }}!</h6>      
-        <form class="form-inline my-4 my-lg-0 ml-3" action="{% url 'user-auth:logout' %}">
+    <div class="form-inline my-2 my-lg-0">
+        <form class=" my-4 my-lg-0 ml-3" action="{% url 'user-auth:logout' %}">
                 {% csrf_token %}
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+            <button class="btn btn-warning my-2 my-sm-0" type="submit">Logout</button>
         </form>
+          
+ 
+       </div>
     {% else %}
-        <form class="form-inline my-2 my-lg-0" action="{% url 'user-auth:login' %}">
+        <form class="my-2 my-lg-0" action="{% url 'user-auth:login' %}">
                 {% csrf_token %}
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+              <button class="btn btn-warning my-2 my-sm-0" type="submit">Login</button>
           </form>
-            <form class="form-inline my-2 my-lg-0" action="{% url 'user-auth:register' %}">
+            <form class="my-2 my-lg-0" action="{% url 'user-auth:register' %}">
                     {% csrf_token %}
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">SignUp</button>
+                <button class="btn btn-warning my-2 my-sm-0" type="submit">SignUp</button>
             </form>
     {% endif %}
   </nav>

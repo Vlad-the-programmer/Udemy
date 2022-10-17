@@ -126,11 +126,11 @@ class ProfileDetailView(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        order = Order.objects.filter(customer=user, complete=False).first()
         
-        context['user'] = user
-        context['profile'] = self.get_object()
-        context['orders'] = Order.objects.filter(customer=user).order_by('-date_created')
-        context['products'] = Product.objects.filter(customer=user).order_by('-date_created')
+        context['order'] = order
+        context['items'] = order.get_order_items
+        context['cartItems'] = order.get_cart_items
         return context
     
    
