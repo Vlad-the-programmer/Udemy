@@ -1,0 +1,38 @@
+{% extends '../../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign Page{% endblock title %}
+
+
+{% block errors %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ field.label }}</strong><span>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock errors %}
+    
+
+{% block content %}
+    
+    <div class="container"> 
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+                {{ form|crispy }}
+            <button type="submit">Register</button>
+            <br>
+            <a href="{% url 'products:products' %}">Home</a>
+        </form> 
+    </div>
+    
+{% endblock %}

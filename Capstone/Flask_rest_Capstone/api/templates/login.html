@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block links %}
+
+        <form action="{{ url_for('sign_up') }}" class="form-inline my-2 my-lg-0" method="post">
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Sign up</button>
+        </form>
+
+{% endblock %}
+
+{% block head %}
+<h2 style="text-align: center"> Login </h2>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container">
+
+<!--Login form-->
+    <form class="form-control" method="post" >{{ form.hidden_tag() }}
+    <div class="position-relative col-lg-3 col-md-4 d-md-block" style="position: relative; left: 300px;">
+
+       <div class="col-lg-6 nav flex-column">
+                <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
+                    <button class="btn btn-filter " data-criteria="wifi" data-toggle="button">
+                        <i class="fa fa-fw fa-wifi"></i>
+                        <br>
+                            <span title="Name">
+                                {{ form.email.label }}<br> {{ form.email }}
+                            </span>
+                    </button>
+                    {% if form.email.errors %}
+                        {{ form.email.errors}}
+                    {% endif %}
+                </div>
+
+
+            <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
+                <button class="btn btn-filter " data-criteria="wifi" data-toggle="button">
+                    <br>
+                        <span title="Stable Wi-Fi">
+                            {{ form.password.label }}<br> {{ form.password }}
+                        </span>
+                </button>
+                {% if form.password.errors %}
+                        {{ form.password.errors}}
+                    {% endif %}
+            </div>
+               <br>
+</div>
+                <button class="btn btn-success" style="position: relative; left: 80px;">Log in</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

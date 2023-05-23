@@ -1,0 +1,16 @@
+
+{% extends '../base.html' %}
+
+{% block title %} Delete an order {% endblock %}
+
+
+{% block content %}
+<div class='container'>
+    <form method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+    <p>Are you sure you want to delete the  {{order.order_id}} with {{order.products.all}} order?</p>
+    <button class="btn btn-success" type="submit">Confirm</button>
+    </form>
+</div>
+
+{% endblock %}

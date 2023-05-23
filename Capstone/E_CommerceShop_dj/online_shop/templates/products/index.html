@@ -1,0 +1,28 @@
+{% extends '../base.html' %}
+
+{% block title %} Home page {% endblock %}
+
+
+{% block content %}
+<div class='container' id='formToCollapse'>
+
+<form class="form-inline my-2 my-lg-0 mr-lg-4 ml-xl-1"  method='get'>
+    {{ filter.form.as_p }}
+  <button class="btn btn-outline-success my-lg-4 mx-lg-3" type="submit">Search</button> 
+  <a href="{% url 'products:products' %}" class="btn btn-outline-success my-2 my-sm-0" type="reset">Reset</a>
+</form>
+</div>
+
+<div class='container mr-lg-5'>
+<button class="btn btn-primary  my-3 align-middle" type="button" data-toggle="collapse" data-target="#formToCollapse" aria-expanded="false" aria-controls="formToCollapse">
+    Filter products/Collapse the filter
+  </button>
+</div>
+
+{% include 'partials/product_list.html' with items=products %}
+{% comment %} <a class="dropdown-item" href="{% url 'user-auth:profile-detail' pk=profile.profile_id %}">Profile</a> {% endcomment %}
+
+
+{% endblock %}
+
+

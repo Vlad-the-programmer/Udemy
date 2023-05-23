@@ -1,18 +1,36 @@
 {% extends 'base.html' %}
 
-<!--{% block search %}-->
-<!-- <form class="form-inline my-2 my-lg-0" method="post">-->
-<!--      <p class="form-control mr-sm-2">{{ form.name }}</p>-->
-<!--      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-<!--    </form>-->
-<!--{% endblock %}-->
+{% block links %}
 
+    {% if user.is_authenticated %}
+<div class="form-inline my-2 my-lg-0 m-4">
+    <h5>Hi, {{ current_user.name }}!</h5>
+</div>
+        <form action="{{ url_for('logout') }}" class="form-inline my-2 my-lg-0 mt-3" method="post">
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+        </form>
+    {% else %}
+         <form action="{{ url_for('sign_up') }}" class="form-inline my-2 my-lg-0 m-4" method="post">
+
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Sign up</button>
+            </form>
+
+        <form action="{{ url_for('login') }}" class="form-inline my-2 my-lg-0" method="post">
+
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Log in</button>
+            </form>
+
+    {% endif %}
+
+
+{% endblock %}
 
 {% block head %}
 <h2 style="text-align: center"> London </h2>
 
 
-  <div class="container" style="font-family: 'Dosis', sans-serif;; font-size: larger">
+  <div class="container" style="font-family: 'Dosis', sans-serif; font-size: larger">
 
         The best work and study-friendly cafes, restaurants, and hotel lobbies in London.
         Find venues with free and reliable Wi-Fi hotspots, ample power sockets,
@@ -20,137 +38,13 @@
     </div>
 <hr>
 
-<form action="{{ url_for('home') }}" class="form-control" method="post">{{ form.hidden_tag() }}
-<div class="position-relative col-lg-3 col-md-4 d-md-block">
 
-   <div class="col-lg-6 nav flex-column">
-            <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-                <button class="btn btn-filter " data-criteria="wifi" data-toggle="button">
-                    <i class="fa fa-fw fa-wifi"></i>
-                    <br>
-                        <span title="Name">
-                            {{ form.name.label }} {{ form.name }}<br>
-                        </span>
-                </button>
-            </div>
-
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button>
-                <br>
-                    <span title="Stable Wi-Fi">
-                        {{ form.has_wifi.label }} {{ form.has_wifi }}
-                    </span>
-            </button>
-        </div>
-           <br>
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button>
-                <br>
-                    <span title="Power sockets">
-                        {{ form.has_sockets.label }} {{ form.has_sockets }}
-                    </span>
-            </button>
-        </div>
-
-           <br>
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button>
-                <br>
-                <span title="Toilet">
-                    {{ form.has_toilet.label }} {{ form.has_toilet }}
-                </span>
-            </button>
-        </div>
-           <br>
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button>
-
-                <br>
-                    <span title="Take calls">
-                        {{ form.has_take_calls.label }}  {{ form.has_take_calls }}
-                    </span>
-            </button>
-        </div>
-           <br>
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button class="btn btn-filter" data-criteria="quiet" data-toggle="button">
-                <i class="fa fa-fw fa-volume-down"></i>
-                <br>
-                    <span title="Location">
-                        {{ form.location.label }} {{ form.location }}
-                    </span>
-            </button>
-        </div>
-           <br>
-
-        <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-            <button class="btn btn-filter" data-criteria="skype" data-toggle="button">
-                <i class="fa fa-fw fa-headset"></i>
-                <br>
-                    <span title="Seats">
-                        {{ form.seats.label }} {{ form.seats }}
-                    </span>
-            </button>
-        </div>
-
-           <br>
-
-           <div class="col-3 col-xl-3 col-lg-4 py-1 nav-item">
-                <button class="btn btn-filter" data-criteria="skype" data-toggle="button">
-                    <i class="fa fa-fw fa-headset"></i>
-                    <br>
-                        <span title="Coffe price">
-                            {{ form.coffe_price.label }} {{ form.coffe_price }}
-                        </span>
-                </button>
-        </div>
-    <br>
-
-        </div>
-
-        <button class="btn btn-success">Submit</button>
-    </div>
-</form>
 {% endblock %}
+
 
 <!--Searched cafes-->
 {% block content %}
-<div class="container" >
-    {% for cafe in searched_cafes %}
-        <div class="card" style="width: 18rem;display: inline-block">
-          <img class="card-img-top" src="{{ cafe.img_url }}" alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">{{ cafe.name }}</h5>
-            <p class="card-text">
-              <ul>
-                  <li>Has {{ cafe.seats }} seats</li>
-                  {% if cafe.has_toilet %}
-                        <li>Has  wifi</li>
-                  {% elif cafe.has_toilet %}
-                        <li>Has  toilet</li>
-                  {% elif cafe.has_sockets %}
-                        <li>Has  sockets</li>
-                  {% elif cafe.has_take_calls %}
-                        <li>Can take calls</li>
-                  {% endif %}
-                  <li>Location - {{ cafe.location }}</li>
-                 <li>Seats - {{ cafe.seats }}</li>
 
-                  <li>Coffe price - {{ cafe.coffe_price }}</li>
-
-                </ul>
-              </p>
-            <a href="#" class="btn btn-primary">Read more</a>
-          </div>
-        </div>
-    {% endfor %}
-</div>
-<hr>
 <div class="conteiner">
     <h3>All cafes</h3>
 </div>
@@ -164,15 +58,18 @@
             <p class="card-text">
               <ul>
 
-                  {% if cafe.has_toilet %}
+                  {% if cafe.has_wifi %}
                         <li>Has  wifi</li>
-                  {% elif cafe.has_toilet %}
+                    {% endif %}
+                  {% if cafe.has_toilet %}
                         <li>Has  toilet</li>
-                  {% elif cafe.has_sockets %}
+                    {% endif %}
+                  {% if cafe.has_sockets %}
                         <li>Has  sockets</li>
-                  {% elif cafe.has_take_calls %}
+                        {% endif %}
+                  {% if cafe.has_take_calls %}
                         <li>Can take calls</li>
-                  {% endif %}
+                    {% endif %}
                   <li>Location - {{ cafe.location }}</li>
                   <li>Seats - {{ cafe.seats }}</li>
 
@@ -180,7 +77,13 @@
 
                 </ul>
               </p>
-            <a href="#" class="btn btn-primary">Read more</a>
+              <form action="" class="form-inline my-2 my-lg-0" method="POST">
+
+                <a href="{{ url_for('update_cafe', pk=cafe.id) }}" class="btn btn-primary" >Update</a>
+                <a href="{{ url_for('delete_cafe', pk=cafe.id) }}" class="btn btn-primary" >Delete</a>
+              </form>
+
+
           </div>
         </div>
     {% endfor %}

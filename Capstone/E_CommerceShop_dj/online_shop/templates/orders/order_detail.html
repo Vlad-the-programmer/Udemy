@@ -1,0 +1,33 @@
+{% extends '../base.html' %}
+
+{% block title %} Home page {% endblock %}
+
+
+{% block content %}
+
+<div class='container'>
+    
+        <div class="card d-inline-block" style="width: 18rem;">
+            {% comment %} <img class="card-img-top" src="{{ customer.featured_image.url }}"> {% endcomment %}
+            <div class="card-body">
+                <h5 class="card-title">{{ order.customer.username }} </h5>
+                <p class="card-text">{% if order.address %}{{ order.address }}{% else %} {% endif %}</p>
+                <li>{{ order.customer.first_name }}</li>
+                {% comment %} <a href="{% url 'products:update-profile' pk=profile.profile_id %}" class="btn btn-info my-sm-2 mx-lg-3">Update</a>
+                <a href="{% url 'products:delete-profile' pk=profile.profile_id %}" class="btn btn-danger my-sm-2 mx-lg-3">Delete</a> {% endcomment %}
+
+            </div>
+            {% comment %} <a href="{% url 'products:product-detail' pk=product.product_id %}" class="btn btn-danger my-sm-2 mx-lg-5">See the product</a> {% endcomment %}
+
+        </div>
+
+    
+        {% include 'partials/product_list.html' with  products=order.orderitem_set.all %}
+        
+        {% comment %} <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+            <a class="dropdown-item"  href="{% url 'user-auth:profile-update' pk=user.customer_id %}">Update Profile</a>
+            <a class="dropdown-item" href="{% url 'user-auth:profile-delete' pk=user.customer_id %}">Delete Profile</a>
+
+        </button> {% endcomment %}
+
+{% endblock %}
